@@ -1,356 +1,344 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AC Auditor 2026</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',sans-serif;background:#f5f5f4;color:#1c1917;min-height:100vh;font-size:15px}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AC Guideline Auditor 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+        .card { background: #ffffff; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); border: 1px solid #f1f5f9; }
+        
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px; width: 24px;
+            border-radius: 50%;
+            background: #0f172a;
+            cursor: pointer;
+            border: 3px solid #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
 
-header{background:#fff;border-bottom:1px solid #e7e5e4;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
-.brand{font-size:15px;font-weight:600;color:#1c1917}
-.brand span{color:#6b7280;font-weight:400}
-.hbadge{font-size:11px;padding:4px 12px;border-radius:20px;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;font-weight:500}
-
-.container{max-width:720px;margin:0 auto;padding:28px 16px 80px}
-
-.panel{background:#fff;border:1px solid #e7e5e4;border-radius:12px;padding:20px;margin-bottom:14px}
-
-.lbl{font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;font-weight:500}
-
-.contra-panel{background:#fff5f5;border-color:#fecaca}
-.contra-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-@media(max-width:500px){.contra-grid{grid-template-columns:1fr}}
-.ck{display:flex;align-items:center;gap:10px;padding:11px 14px;border:1px solid #fca5a5;border-radius:8px;cursor:pointer;font-size:13px;color:#1c1917;background:#fff;transition:background .15s;user-select:none}
-.ck:hover{background:#fef2f2}
-.ck input{accent-color:#dc2626;width:15px;height:15px;flex-shrink:0}
-
-.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:500px){.fg{grid-template-columns:1fr}}
-.fg.full{grid-template-columns:1fr}
-
-select,input[type=number]{background:#fafaf9;border:1px solid #d6d3d1;border-radius:8px;color:#1c1917;font-family:'Inter',sans-serif;font-size:14px;padding:9px 12px;outline:none;transition:border-color .15s;width:100%}
-select:focus,input[type=number]:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.1)}
-select{cursor:pointer;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
-input[type=number]::-webkit-inner-spin-button{opacity:0}
-
-.dose-row{display:flex}
-.dose-row input{border-radius:8px 0 0 8px;border-right:none;flex:1}
-.dose-row select{border-radius:0 8px 8px 0;min-width:84px;background-color:#f5f5f4}
-
-.time-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
-.time-val{font-size:24px;font-weight:600;color:#1c1917}
-.time-val small{font-size:14px;font-weight:400;color:#6b7280;margin-left:2px}
-
-input[type=range]{-webkit-appearance:none;width:100%;height:4px;background:#e7e5e4;border-radius:2px;outline:none}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#6366f1;cursor:pointer;border:3px solid #fff;box-shadow:0 0 0 1px #6366f1}
-.ticks{display:flex;justify-content:space-between;margin-top:6px}
-.ticks span{font-size:11px;color:#9ca3af}
-
-.divl{height:1px;background:#f5f5f4;margin:16px 0}
-
-.run-btn{width:100%;padding:12px;background:#1c1917;color:#fff;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:background .15s;letter-spacing:.01em}
-.run-btn:hover{background:#292524}
-.run-btn:active{transform:scale(.99)}
-
-#output{display:none}
-.result-panel{border-radius:12px;padding:22px;background:#fff;border:1px solid #e7e5e4;border-left-width:4px;border-left-color:#e7e5e4;transition:border-left-color .3s}
-.result-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:10px}
-.rname{font-size:17px;font-weight:600;color:#1c1917}
-.rsub{font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.08em;margin-top:3px}
-.vbadge{font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;white-space:nowrap;flex-shrink:0}
-
-.rbox{background:#fafaf9;border:1px solid #f5f5f4;border-radius:8px;padding:14px;font-size:14px;line-height:1.7;color:#292524;margin-bottom:12px}
-
-.note{display:flex;gap:10px;padding:11px 14px;border-radius:8px;font-size:13px;margin-bottom:8px;border-left:3px solid;align-items:flex-start;line-height:1.5}
-.note-icon{flex-shrink:0;margin-top:1px;font-size:15px}
-.note-body strong{display:block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
-
-.note-info{background:#eff6ff;border-color:#93c5fd;color:#1e3a5f}
-.note-violet{background:#f5f3ff;border-color:#c4b5fd;color:#2e1065}
-.note-green{background:#f0fdf4;border-color:#86efac;color:#14532d}
-.note-muted{background:#fafaf9;border-color:#d6d3d1;color:#44403c}
-
-.meta-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding-top:14px;border-top:1px solid #f5f5f4;margin-top:6px}
-@media(max-width:480px){.meta-row{grid-template-columns:repeat(2,1fr)}}
-.mk{font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px}
-.mv{font-size:13px;font-weight:600;color:#1c1917}
-
-/* badge color presets */
-.badge-green{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
-.badge-blue{background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe}
-.badge-amber{background:#fffbeb;color:#92400e;border:1px solid #fde68a}
-.badge-red{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
-.badge-muted{background:#f5f5f4;color:#57534e;border:1px solid #e7e5e4}
-</style>
+        .status-strong { background-color: #059669; color: white; }
+        .status-weak { background-color: #2563eb; color: white; }
+        .status-not { background-color: #dc2626; color: white; }
+        
+        #search_results {
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 50;
+            display: none;
+        }
+        .search-item:hover { background-color: #f1f5f9; }
+        .sim-table td, .sim-table th { padding: 8px; border-bottom: 1px solid #e2e8f0; font-size: 11px; }
+        
+        .adac-active { border-color: #fbbf24; background-color: #fffbeb; }
+    </style>
 </head>
-<body>
+<body class="bg-slate-50 min-h-screen font-sans text-slate-900 pb-20">
 
-<header>
-  <div class="brand">AC Auditor <span>2026</span></div>
-  <div class="hbadge">✓ 2026 Consensus Guidelines</div>
-</header>
-
-<div class="container">
-
-  <!-- Contraindications -->
-  <div class="panel contra-panel">
-    <div class="lbl" style="color:#dc2626">Absolute contraindications — confirm both before proceeding</div>
-    <div class="contra-grid">
-      <label class="ck"><input type="checkbox" id="chk_airway"><span>Airway protected (intact reflexes or ETT in situ)</span></label>
-      <label class="ck"><input type="checkbox" id="chk_gi"><span>No perforation / obstruction risk</span></label>
+<div class="gradient-bg text-white pt-10 pb-24 px-6 text-center">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl md:text-5xl font-black mb-3 tracking-tight uppercase">Toxicology Engine</h1>
+        <p class="text-blue-200 font-medium text-sm md:text-base opacity-80 uppercase tracking-widest">Table 4 Full Drug Audit (Ver 4.9 - Strict Guideline Compliance)</p>
     </div>
-  </div>
+</div>
 
-  <!-- Inputs -->
-  <div class="panel">
-    <div style="margin-bottom:14px">
-      <div class="lbl">Target substance</div>
-      <select id="sel_toxin"><option value="">Select poison…</option></select>
-    </div>
-    <div class="fg" style="margin-bottom:14px">
-      <div>
-        <div class="lbl">Formulation</div>
-        <select id="sel_form">
-          <option value="IR">Immediate release (IR)</option>
-          <option value="MR">Modified release (MR / SR / XR)</option>
-        </select>
-      </div>
-      <div>
-        <div class="lbl">Patient weight (kg)</div>
-        <input type="number" id="inp_weight" value="70" min="1" max="300">
-      </div>
-    </div>
-    <div style="margin-bottom:4px">
-      <div class="lbl">Estimated ingested dose</div>
-      <div class="dose-row">
-        <input type="number" id="inp_dose" placeholder="0" min="0">
-        <select id="sel_unit">
-          <option value="mg">mg</option>
-          <option value="g">g</option>
-          <option value="mgkg">mg/kg</option>
-        </select>
-      </div>
+<div class="max-w-3xl mx-auto px-4 -mt-16">
+    <div class="mb-4 flex justify-between items-center">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Clinical Decision Support</span>
+        <button onclick="toggleSimulation()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg transition-all">
+            Audit Summary
+        </button>
     </div>
 
-    <div class="divl"></div>
-
-    <div class="time-head">
-      <div class="lbl" style="margin:0">Time since ingestion</div>
-      <div class="time-val" id="time_display">1.0<small>h</small></div>
-    </div>
-    <input type="range" id="slider_time" min="0" max="24" step="0.5" value="1">
-    <div class="ticks">
-      <span>0h</span><span>4h</span><span>8h</span><span>12h</span><span>16h</span><span>20h</span><span>24h</span>
-    </div>
-
-    <div class="divl"></div>
-    <button class="run-btn" onclick="runAudit()">Run Guideline Audit</button>
-  </div>
-
-  <!-- Result -->
-  <div id="output">
-    <div class="result-panel" id="result_panel">
-      <div class="result-header">
-        <div>
-          <div class="rname" id="res_name"></div>
-          <div class="rsub" id="res_sub"></div>
+    <!-- Simulation Dashboard -->
+    <div id="simulation_dashboard" class="hidden card p-6 mb-6 border-2 border-indigo-200 bg-indigo-50/50">
+        <div class="flex justify-between items-center mb-4">
+            <div>
+                <h2 class="text-sm font-black text-indigo-900 uppercase tracking-widest">Logic Audit Logs</h2>
+                <p class="text-[10px] text-indigo-500">Filtered to Table 4 substances + Contraindicated Metals.</p>
+            </div>
+            <button onclick="runComprehensiveSimulation()" class="bg-indigo-900 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase hover:bg-black">Run Audit (50 Cases)</button>
         </div>
-        <div class="vbadge" id="res_badge"></div>
-      </div>
-      <div class="rbox" id="res_text"></div>
-      <div id="res_notes"></div>
-      <div class="meta-row">
-        <div><div class="mk">Rec type</div><div class="mv" id="meta_rec">—</div></div>
-        <div><div class="mk">Evidence</div><div class="mv" id="meta_grade">—</div></div>
-        <div><div class="mk">Min dose</div><div class="mv" id="meta_thresh" style="font-size:11px;line-height:1.5;margin-top:1px">—</div></div>
-        <div><div class="mk">Source</div><div class="mv" style="font-size:11px;line-height:1.5;margin-top:1px">Table 4<br>2026 Consensus</div></div>
-      </div>
+        <div class="max-h-96 overflow-y-auto bg-white rounded-xl border border-indigo-100 shadow-inner">
+            <table class="w-full text-left sim-table">
+                <thead class="bg-indigo-900 text-white sticky top-0">
+                    <tr><th>Drug</th><th>Dose/Form</th><th>Time</th><th>Rec</th><th>ADAC</th></tr>
+                </thead>
+                <tbody id="sim_results_body">
+                    <tr><td colspan="5" class="p-8 text-center italic text-slate-400">Ready for stress test...</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
-  </div>
 
+    <div class="card p-6 md:p-8 mb-8">
+        <div class="space-y-6">
+            <div class="relative">
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">1. Select Substance (Strict Table 4 List)</label>
+                <div class="relative">
+                    <input type="text" id="drug_search" placeholder="Type drug name (e.g., Paracetamol, Digoxin, Iron)..." 
+                           class="w-full p-4 bg-slate-50 border-2 border-slate-200 rounded-xl font-bold text-lg focus:border-slate-900 outline-none transition-all"
+                           onfocus="showSearchResults()" oninput="filterDrugs(this.value)">
+                    <div id="search_results" class="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-2xl py-2"></div>
+                </div>
+                <input type="hidden" id="toxin_value">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">2. Ingested Dose</label>
+                        <div class="flex items-stretch gap-2">
+                            <div class="flex-1 flex items-center gap-2 bg-slate-50 p-4 rounded-xl border-2 border-slate-100">
+                                <input type="number" id="ingested_dose" placeholder="0" class="w-full bg-transparent font-black text-xl outline-none">
+                            </div>
+                            <select id="dose_unit" class="w-1/3 bg-slate-900 text-white rounded-xl font-black text-xs p-2 outline-none cursor-pointer">
+                                <option value="mg_kg">mg/kg</option>
+                                <option value="mg">mg</option>
+                                <option value="g">g</option>
+                                <option value="td">TD</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="mr_container" class="opacity-30 pointer-events-none transition-opacity duration-300">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">3. Formulation</label>
+                        <div class="grid grid-cols-2 gap-2 p-1.5 bg-slate-100 rounded-2xl border border-slate-200 h-[64px]">
+                            <button id="btn_IR" onclick="setFormType('IR')" class="py-3 font-black text-sm rounded-xl transition-all">IR</button>
+                            <button id="btn_MR" onclick="setFormType('MR')" class="py-3 font-black text-sm rounded-xl transition-all">MR/SR</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">4. Presentation Time</label>
+                    <div class="flex items-center gap-2 bg-slate-50 p-4 rounded-xl border-2 border-slate-100">
+                        <input type="number" id="hrs_input" step="0.1" value="1.0" class="w-full bg-transparent font-black text-xl outline-none" oninput="syncSlider(this.value)">
+                        <span class="font-bold text-slate-400 text-xs">hrs</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">5. Patient Weight</label>
+                    <div class="flex items-center gap-2 bg-slate-50 p-4 rounded-xl border-2 border-slate-100">
+                        <input type="number" id="weight" value="70" class="w-full bg-transparent font-black text-xl outline-none">
+                        <span class="font-bold text-slate-400 text-xs">kg</span>
+                    </div>
+                </div>
+            </div>
+
+            <input type="range" id="time_slider" min="0" max="24" step="0.1" value="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer" oninput="syncInput(this.value)">
+
+            <button onclick="manualRun()" class="w-full py-5 bg-slate-900 text-white rounded-xl font-black text-lg shadow-lg hover:bg-black transition-all active:scale-[0.98] uppercase tracking-widest">
+                Get Recommendation
+            </button>
+        </div>
+    </div>
+
+    <div id="results_area" class="hidden space-y-6">
+        <div id="res_card" class="card overflow-hidden border-t-[12px]">
+            <div id="status_banner" class="p-8 text-center uppercase tracking-[0.2em]">
+                <h2 id="res_status_title" class="text-3xl md:text-4xl font-black mb-1"></h2>
+                <p id="res_status_sub" class="text-xs font-bold opacity-90"></p>
+            </div>
+            <div class="p-6 md:p-8">
+                <h3 id="res_name" class="text-2xl font-black text-slate-900 leading-tight"></h3>
+                <p id="res_meta" class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1 mb-6"></p>
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl mb-8">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Initial Activated Charcoal Dose</p>
+                    <p id="calculated_dose" class="text-2xl font-black text-slate-900"></p>
+                </div>
+                <div id="adac_panel" class="p-6 rounded-2xl border-2">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span id="adac_grade_badge" class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest"></span>
+                        <h4 class="text-xs font-black text-slate-900 uppercase tracking-widest">MDAC/ADAC Status</h4>
+                    </div>
+                    <p id="adac_description" class="text-sm font-bold text-slate-600"></p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-const DB = [
-  {id:"paracetamol_ir",name:"Acetaminophen (Paracetamol)",forms:["IR"],rec:"Recommend",rec_up_to:2,sug_up_to:4,grade:"B",mdac:{rec:"Not Recommended",grade:"B"},threshold:"200 mg/kg",thresh_mgkg:200,notes:["ADAC eligible if dose exceeds 50 g binding capacity or MR suspected."]},
-  {id:"paracetamol_mr",name:"Acetaminophen (Paracetamol)",forms:["MR"],rec:"Recommend",rec_up_to:4,sug_up_to:12,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"Individual risk assessment",thresh_mgkg:null,notes:["Extended window reflects delayed absorption from MR formulation."]},
-  {id:"alcohols",name:"Alcohols (Ethanol / Methanol / Ethylene glycol)",forms:["Any"],rec:"Not Recommended",rec_up_to:null,sug_up_to:null,grade:"C",mdac:{rec:"Not Recommended",grade:"D"},threshold:"Any dose",thresh_mgkg:null,notes:["Rapid absorption renders AC ineffective. Specific antidotes apply."]},
-  {id:"antidys_ir",name:"Antidysrhythmics (Type I/III)",forms:["IR"],rec:"Suggest",rec_up_to:1,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"5 therapeutic doses (TD)",thresh_mgkg:null,notes:["Includes flecainide, sotalol, amiodarone."]},
-  {id:"antidys_mr",name:"Antidysrhythmics (Type I/III)",forms:["MR"],rec:"Suggest",rec_up_to:2,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"5 therapeutic doses (TD)",thresh_mgkg:null,notes:[]},
-  {id:"arsenic",name:"Arsenic",forms:["Any"],rec:"Not Recommended",rec_up_to:null,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"Any dose",thresh_mgkg:null,notes:[]},
-  {id:"benzos",name:"Benzodiazepines",forms:["Any"],rec:"Not Recommended",rec_up_to:null,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"Any dose",thresh_mgkg:null,notes:["Flumazenil is the relevant antidote if clinically indicated."]},
-  {id:"betablock_ir",name:"Beta-adrenergic antagonists (beta-blockers)",forms:["IR"],rec:"Suggest",rec_up_to:1,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"5–6 mg/kg (drug specific)",thresh_mgkg:null,notes:["Threshold is drug specific."]},
-  {id:"betablock_mr",name:"Beta-adrenergic antagonists (beta-blockers)",forms:["MR"],rec:"Suggest",rec_up_to:2,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"5–6 mg/kg (drug specific)",thresh_mgkg:null,notes:[]},
-  {id:"bupropion",name:"Bupropion",forms:["Any"],rec:"Suggest",rec_up_to:2,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"20 mg/kg",thresh_mgkg:20,notes:[]},
-  {id:"caesium",name:"Caesium",forms:["Any"],rec:"Not Recommended",rec_up_to:null,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"Any dose",thresh_mgkg:null,notes:[]},
-  {id:"ccb_ir",name:"Calcium-channel blockers (CCB)",forms:["IR"],rec:"Suggest",rec_up_to:1,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"3–5 therapeutic doses (drug specific)",thresh_mgkg:null,notes:[]},
-  {id:"ccb_mr",name:"Calcium-channel blockers (CCB)",forms:["MR"],rec:"Suggest",rec_up_to:2,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"3–5 therapeutic doses (drug specific)",thresh_mgkg:null,notes:[]},
-  {id:"carbamazepine",name:"Carbamazepine",forms:["IR","MR"],rec:"Recommend",rec_up_to:4,sug_up_to:null,grade:"C",mdac:{rec:"Recommend",grade:"C"},threshold:"25 mg/kg",thresh_mgkg:25,notes:["MDAC strongly supported — carbamazepine undergoes significant enterohepatic recirculation."]},
-  {id:"digoxin",name:"Cardiac glycosides — Digoxin",forms:["Any"],rec:"Suggest",rec_up_to:1,sug_up_to:null,grade:"C",mdac:{rec:"Recommend",grade:"C"},threshold:"75 µg/kg",thresh_mgkg:null,notes:["DigiFab is definitive treatment; AC is adjunctive."]},
-  {id:"oleander",name:"Cardiac glycosides — Oleander / plant-derived",forms:["Any"],rec:"Not Recommended",rec_up_to:null,sug_up_to:null,grade:"D",mdac:{rec:"Recommend",grade:"B"},threshold:"4 seeds",thresh_mgkg:null,notes:["SDAC not recommended but MDAC has Grade B evidence for eliminating absorbed plant glycosides."]},
-  {id:"chloroquine",name:"Chloroquine / Hydroxychloroquine",forms:["Any"],rec:"Suggest",rec_up_to:1,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"35 mg/kg",thresh_mgkg:35,notes:[]},
-  {id:"cocaine",name:"Cocaine",forms:["Any"],rec:"Suggest",rec_up_to:1,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"5 mg/kg",thresh_mgkg:5,notes:[]},
-  {id:"colchicine",name:"Colchicine",forms:["Any"],rec:"Suggest",rec_up_to:2,sug_up_to:null,grade:"D",mdac:{rec:"Suggest",grade:"D"},threshold:"0.4 mg/kg",thresh_mgkg:0.4,notes:[]},
-  {id:"copper",name:"Copper",forms:["Any"],rec:"Not Recommended",rec_up_to:null,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"Any dose",thresh_mgkg:null,notes:[]},
-  {id:"cyanide",name:"Cyanide",forms:["Any"],rec:"Suggest",rec_up_to:1,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"2 mg/kg",thresh_mgkg:2,notes:["Hydroxocobalamin (Cyanokit) is first-line; AC is adjunctive."]},
-  {id:"dapsone",name:"Dapsone",forms:["Any"],rec:"Suggest",rec_up_to:1,sug_up_to:null,grade:"D",mdac:{rec:"Suggest",grade:"D"},threshold:"6 mg/kg",thresh_mgkg:6,notes:[]},
-  {id:"diphenhydramine",name:"Diphenhydramine",forms:["Any"],rec:"Suggest",rec_up_to:1,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"15 mg/kg",thresh_mgkg:15,notes:[]},
-  {id:"disopyramide",name:"Disopyramide",forms:["IR","MR"],rec:"Suggest",rec_up_to:1,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"1 g (absolute)",thresh_mgkg:null,notes:["Absolute threshold of 1 g regardless of body weight."]},
-  {id:"factor_xa",name:"Factor Xa inhibitors (Apixaban / Rivaroxaban)",forms:["Any"],rec:"Suggest",rec_up_to:1,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"40 mg (Apixaban) / 80 mg (Rivaroxaban)",thresh_mgkg:null,notes:["Andexanet alfa is the specific reversal agent."]},
-  {id:"ibuprofen",name:"Ibuprofen",forms:["Any"],rec:"Suggest",rec_up_to:1,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"250 mg/kg",thresh_mgkg:250,notes:[]},
-  {id:"iron",name:"Iron",forms:["Any"],rec:"Not Recommended",rec_up_to:null,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"Any dose",thresh_mgkg:null,notes:["AC does not bind iron. Deferoxamine is the specific chelator."]},
-  {id:"isoniazid",name:"Isoniazid (INH)",forms:["Any"],rec:"Suggest",rec_up_to:1,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"40 mg/kg",thresh_mgkg:40,notes:["Pyridoxine (Vitamin B6) is the specific antidote."]},
-  {id:"lamotrigine",name:"Lamotrigine",forms:["IR","MR"],rec:"Suggest",rec_up_to:2,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"30 mg/kg",thresh_mgkg:30,notes:[]},
-  {id:"lead",name:"Lead",forms:["Any"],rec:"Not Recommended",rec_up_to:null,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"Any dose",thresh_mgkg:null,notes:[]},
-  {id:"lithium",name:"Lithium",forms:["Any"],rec:"Not Recommended",rec_up_to:null,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"Any dose",thresh_mgkg:null,notes:["AC does not bind lithium."]},
-  {id:"mercury",name:"Mercury",forms:["Any"],rec:"Not Recommended",rec_up_to:null,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"Any dose",thresh_mgkg:null,notes:[]},
-  {id:"metformin",name:"Metformin",forms:["IR","MR"],rec:"Not Recommended",rec_up_to:null,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"Any dose",thresh_mgkg:null,notes:[]},
-  {id:"methotrexate",name:"Methotrexate",forms:["Any"],rec:"Suggest",rec_up_to:1,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"10 mg/kg",thresh_mgkg:10,notes:["Leucovorin rescue is the specific antidote."]},
-  {id:"moclobemide",name:"Moclobemide (RIMA)",forms:["IR","MR"],rec:"Suggest",rec_up_to:1,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"50 mg/kg",thresh_mgkg:50,notes:[]},
-  {id:"opioids",name:"Opioids",forms:["IR","MR"],rec:"Suggest",rec_up_to:2,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"5 therapeutic doses (TD)",thresh_mgkg:null,notes:["Naloxone is the specific antidote."]},
-  {id:"organophos",name:"Organophosphates",forms:["Any"],rec:"Suggest",rec_up_to:2,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"Any dose",thresh_mgkg:null,notes:["Atropine and pralidoxime are specific antidotes."]},
-  {id:"paraquat",name:"Paraquat",forms:["Any"],rec:"Suggest",rec_up_to:4,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"5 mg/kg",thresh_mgkg:5,notes:["Extended 4h window — no antidote exists; every reduction in absorption is critical."]},
-  {id:"phenobarbital",name:"Phenobarbital",forms:["Any"],rec:"Suggest",rec_up_to:2,sug_up_to:null,grade:"C",mdac:{rec:"Recommend",grade:"C"},threshold:"20 mg/kg",thresh_mgkg:20,notes:["MDAC strongly supported — phenobarbital undergoes significant enteroenteric circulation."]},
-  {id:"phenytoin",name:"Phenytoin / Fosphenytoin",forms:["IR","MR"],rec:"Suggest",rec_up_to:2,sug_up_to:null,grade:"D",mdac:{rec:"Suggest",grade:"D"},threshold:"40 mg/kg",thresh_mgkg:40,notes:[]},
-  {id:"quinine",name:"Quinidine / Quinine",forms:["Any"],rec:"Suggest",rec_up_to:1,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"750 mg (Quinidine) / 20 mg/kg (Quinine)",thresh_mgkg:null,notes:[]},
-  {id:"salicylates_ir",name:"Salicylates (Aspirin)",forms:["IR"],rec:"Recommend",rec_up_to:2,sug_up_to:4,grade:"C",mdac:{rec:"Not Recommended",grade:"D"},threshold:"200 mg/kg",thresh_mgkg:200,notes:["Urinary alkalinisation and haemodialysis are key adjuncts."]},
-  {id:"salicylates_mr",name:"Salicylates (Aspirin)",forms:["MR"],rec:"Suggest",rec_up_to:12,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"Individual risk assessment",thresh_mgkg:null,notes:["Extended 12h window for MR. Monitor salicylate levels serially."]},
-  {id:"ssri",name:"SSRIs",forms:["Any"],rec:"Suggest",rec_up_to:1,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"15 therapeutic doses (TD)",thresh_mgkg:null,notes:[]},
-  {id:"sulfonylureas",name:"Sulfonylureas",forms:["Any"],rec:"Suggest",rec_up_to:1,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"5 therapeutic doses (TD)",thresh_mgkg:null,notes:["Octreotide is useful for refractory hypoglycaemia."]},
-  {id:"thallium",name:"Thallium",forms:["Any"],rec:"Suggest",rec_up_to:2,sug_up_to:null,grade:"D",mdac:{rec:"Suggest",grade:"D"},threshold:"10 mg/kg",thresh_mgkg:10,notes:["Prussian blue is the specific adsorbent; AC is adjunctive."]},
-  {id:"theophylline",name:"Theophylline",forms:["IR","MR"],rec:"Recommend",rec_up_to:2,sug_up_to:null,grade:"C",mdac:{rec:"Recommend",grade:"C"},threshold:"20 mg/kg",thresh_mgkg:20,notes:["Classic MDAC indication alongside carbamazepine and phenobarbital."]},
-  {id:"tca",name:"Tricyclic antidepressants (TCAs)",forms:["Any"],rec:"Suggest",rec_up_to:2,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"10 mg/kg",thresh_mgkg:10,notes:["Sodium bicarbonate for QRS widening."]},
-  {id:"valproate",name:"Valproic acid (Sodium valproate)",forms:["Any"],rec:"Suggest",rec_up_to:2,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"200 mg/kg",thresh_mgkg:200,notes:[]},
-  {id:"venlafaxine",name:"Venlafaxine (SNRI)",forms:["Any"],rec:"Suggest",rec_up_to:2,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"25 mg/kg",thresh_mgkg:25,notes:[]},
-  {id:"warfarin",name:"Warfarin / Coumarins",forms:["Any"],rec:"Not Recommended",rec_up_to:null,sug_up_to:null,grade:"D",mdac:{rec:"Not Recommended",grade:"D"},threshold:"0.7 mg/kg",thresh_mgkg:0.7,notes:["Vitamin K / FFP are specific treatments."]}
-];
-
-// Populate dropdown
-const sel = document.getElementById('sel_toxin');
-DB.forEach((d, i) => {
-  const o = document.createElement('option');
-  o.value = i;
-  const fl = d.forms.includes("Any") ? "" : ` [${d.forms.join("/")}]`;
-  o.textContent = d.name + fl;
-  sel.appendChild(o);
-});
-
-// Slider
-document.getElementById('slider_time').addEventListener('input', function() {
-  document.getElementById('time_display').innerHTML = parseFloat(this.value).toFixed(1) + '<small>h</small>';
-});
-
-function runAudit() {
-  const idx = parseInt(document.getElementById('sel_toxin').value);
-  if (isNaN(idx)) { alert('Please select a substance.'); return; }
-
-  const d = DB[idx];
-  const hours = parseFloat(document.getElementById('slider_time').value);
-  const doseRaw = parseFloat(document.getElementById('inp_dose').value) || 0;
-  const doseUnit = document.getElementById('sel_unit').value;
-  const weight = parseFloat(document.getElementById('inp_weight').value) || 70;
-  const okA = document.getElementById('chk_airway').checked;
-  const okG = document.getElementById('chk_gi').checked;
-
-  let doseMgKg = 0;
-  if (doseUnit === 'mg') doseMgKg = doseRaw / weight;
-  else if (doseUnit === 'g') doseMgKg = (doseRaw * 1000) / weight;
-  else doseMgKg = doseRaw;
-
-  document.getElementById('output').style.display = 'block';
-  const panel = document.getElementById('result_panel');
-  const badge = document.getElementById('res_badge');
-  const notes = document.getElementById('res_notes');
-  notes.innerHTML = '';
-
-  document.getElementById('res_name').textContent = d.name;
-  document.getElementById('meta_grade').textContent = 'Grade ' + d.grade;
-  document.getElementById('meta_thresh').textContent = d.threshold;
-  const fl = d.forms.includes("Any") ? "Any formulation" : document.getElementById('sel_form').value + " formulation";
-  document.getElementById('res_sub').textContent = fl.toUpperCase();
-
-  // Contraindication
-  if (!okA || !okG) {
-    panel.style.borderLeftColor = '#dc2626';
-    badge.className = 'vbadge badge-red';
-    badge.textContent = 'Contraindicated';
-    document.getElementById('res_text').innerHTML = '<strong>Absolute contraindication present.</strong> AC must not be administered until both conditions above are confirmed.';
-    document.getElementById('meta_rec').textContent = '—';
-    return;
-  }
-
-  // Not recommended for everything
-  if (d.rec === 'Not Recommended' && d.mdac.rec === 'Not Recommended') {
-    panel.style.borderLeftColor = '#d6d3d1';
-    badge.className = 'vbadge badge-muted';
-    badge.textContent = 'Not recommended';
-    document.getElementById('meta_rec').textContent = 'None';
-    document.getElementById('res_text').textContent = 'AC (SDAC and MDAC) is not recommended for ' + d.name + '. No evidence of benefit supports administration.';
-    addDrugNotes(d, notes);
-    return;
-  }
-
-  // Below threshold
-  if (d.thresh_mgkg !== null && doseRaw > 0 && doseMgKg < d.thresh_mgkg) {
-    panel.style.borderLeftColor = '#f59e0b';
-    badge.className = 'vbadge badge-amber';
-    badge.textContent = 'Below threshold';
-    document.getElementById('meta_rec').textContent = 'None';
-    document.getElementById('res_text').textContent = 'Estimated dose (' + doseMgKg.toFixed(1) + ' mg/kg) is below the minimum threshold of ' + d.threshold + '. AC is not indicated at this dose.';
-    return;
-  }
-
-  // Time-based recommendation
-  let verdict, color, badgeClass, txt;
-
-  if (d.rec !== 'Not Recommended' && d.rec_up_to !== null && hours <= d.rec_up_to) {
-    verdict = d.rec;
-    if (d.rec === 'Recommend') {
-      color = '#16a34a'; badgeClass = 'badge-green';
-      txt = '<strong>Recommend SDAC</strong> — patient is within the ' + d.rec_up_to + 'h window. Evidence Grade ' + d.grade + '. Administer 50 g (adult) or 1 g/kg (paediatric, max 50 g).';
-    } else {
-      color = '#2563eb'; badgeClass = 'badge-blue';
-      txt = '<strong>Suggest SDAC</strong> — patient is within the ' + d.rec_up_to + 'h window. Evidence Grade ' + d.grade + '. Perform an individualised risk–benefit assessment before administration.';
+const DATA = {
+    "Analgesics": {
+        "paracetamol": { name: "Paracetamol (Acetaminophen)", t1: 2, t2: 4, t1_mr: 4, t2_mr: 12, grade_ir: "Strong (B)", grade_mr: "Strong (B)", mr: true, sdac_thresh: 200, adac_thresh_ir: 300, unit: "mg/kg", adac_grade: "Weak (D)" },
+        "salicylates": { name: "Salicylates (Aspirin)", t1: 2, t2: 4, t1_mr: 4, t2_mr: 12, grade_ir: "Strong (B)", grade_mr: "Strong (B)", mr: true, sdac_thresh: 150, adac_thresh_ir: 500, unit: "mg/kg", adac_grade: "Weak (D)" },
+        "nsaids": { name: "NSAIDs (Ibuprofen, Naproxen)", t1: 1, t2: 1, grade_ir: "Weak (D)", mr: false, sdac_thresh: 100, unit: "mg/kg", adac_grade: "None" },
+        "opioids": { name: "Opioids (Oral/Extended)", t1: 2, t2: 2, grade_ir: "Weak (D)", mr: true, sdac_thresh: 1, unit: "TD", adac_grade: "Individual (D)" }
+    },
+    "Cardiac": {
+        "digoxin": { name: "Digoxin", t1: 2, t2: 2, grade_ir: "Strong (B)", mr: false, sdac_thresh: 0.1, unit: "mg/kg", adac_grade: "Weak (D)" },
+        "flecainide": { name: "Flecainide / Propafenone", t1: 2, t2: 4, grade_ir: "Strong (B)", mr: false, sdac_thresh: 5, unit: "mg/kg", adac_grade: "Weak (D)" },
+        "sotalol": { name: "Sotalol", t1: 2, t2: 2, grade_ir: "Strong (B)", mr: false, sdac_thresh: 10, unit: "mg/kg", adac_grade: "Weak (D)" },
+        "beta_blocker": { name: "Beta-Blockers (Propranolol, etc.)", t1: 1, t2: 2, grade_ir: "Weak (D)", mr: true, sdac_thresh: 5, unit: "mg/kg", adac_grade: "Individual (D)" },
+        "ccb": { name: "Calcium Channel Blockers", t1: 1, t2: 2, grade_ir: "Weak (D)", mr: true, sdac_thresh: 3, unit: "TD", adac_grade: "Individual (D)" }
+    },
+    "Anti-Inflammatory": {
+        "colchicine": { name: "Colchicine", t1: 2, t2: 4, grade_ir: "Strong (B)", mr: false, sdac_thresh: 0.3, adac_thresh_ir: 0.5, unit: "mg/kg", adac_grade: "Weak (D)" },
+        "methotrexate": { name: "Methotrexate", t1: 1, t2: 1, grade_ir: "Weak (D)", mr: false, sdac_thresh: 5, unit: "mg/kg", adac_grade: "None" }
+    },
+    "Anticonvulsants": {
+        "carbamazepine": { name: "Carbamazepine", t1: 4, t2: 4, grade_ir: "Strong (B)", mr: true, sdac_thresh: 25, unit: "mg/kg", adac_grade: "Weak (D)" },
+        "phenobarbital": { name: "Phenobarbital", t1: 2, t2: 4, grade_ir: "Strong (B)", mr: false, sdac_thresh: 15, unit: "mg/kg", adac_grade: "Strong (B)" },
+        "phenytoin": { name: "Phenytoin", t1: 1, t2: 2, grade_ir: "Weak (D)", mr: false, sdac_thresh: 20, unit: "mg/kg", adac_grade: "None" },
+        "valproate": { name: "Valproic Acid", t1: 2, t2: 2, grade_ir: "Weak (D)", mr: false, sdac_thresh: 200, unit: "mg/kg", adac_grade: "Individual (D)" }
+    },
+    "Miscellaneous": {
+        "amanita": { name: "Amanita phalloides", t1: 2, t2: 4, grade_ir: "Strong (B)", mr: false, sdac_thresh: 0.1, unit: "g", adac_grade: "Weak (D)" },
+        "dapsone": { name: "Dapsone", t1: 2, t2: 4, grade_ir: "Strong (B)", mr: false, sdac_thresh: 10, unit: "mg/kg", adac_grade: "Strong (C)" },
+        "theophylline": { name: "Theophylline", t1: 1, t2: 2, grade_ir: "Strong (B)", mr: true, sdac_thresh: 20, unit: "mg/kg", adac_grade: "Strong (C)" },
+        "paraquat": { name: "Paraquat", t1: 1, t2: 2, grade_ir: "Strong (A)", mr: false, sdac_thresh: 1, unit: "mg/kg", adac_grade: "None" },
+        "isoniazid": { name: "Isoniazid", t1: 2, t2: 2, grade_ir: "Strong (B)", mr: false, sdac_thresh: 20, unit: "mg/kg", adac_grade: "None" }
+    },
+    "Contraindicated": {
+        "iron": { name: "Iron", grade_ir: "Not Recommended (A)", contraindicated: true, reason: "No charcoal binding." },
+        "lithium": { name: "Lithium", grade_ir: "Not Recommended (A)", contraindicated: true, reason: "No charcoal binding." },
+        "lead": { name: "Lead / Heavy Metals", grade_ir: "Not Recommended (A)", contraindicated: true, reason: "No charcoal binding." },
+        "corrosives": { name: "Corrosives / Hydrocarbons", grade_ir: "Not Recommended (A)", contraindicated: true, reason: "Aspiration risk." },
+        "alcohols": { name: "Ethanol / Methanol / Glycols", grade_ir: "Not Recommended (A)", contraindicated: true, reason: "No charcoal binding." }
     }
-  } else if (d.sug_up_to !== null && hours <= d.sug_up_to) {
-    verdict = 'Suggest (extended)'; color = '#2563eb'; badgeClass = 'badge-blue';
-    txt = '<strong>Suggest SDAC — extended window.</strong> Patient is beyond the primary ' + d.rec_up_to + 'h window but within the extended ' + d.sug_up_to + 'h suggest window. Efficacy is reduced; weigh risks carefully. Evidence Grade ' + d.grade + '.';
-  } else if (d.rec === 'Not Recommended') {
-    verdict = 'SDAC: not recommended'; color = '#d6d3d1'; badgeClass = 'badge-muted';
-    txt = 'SDAC is not recommended for ' + d.name + '.' + (d.mdac.rec !== 'Not Recommended' ? ' However, MDAC may be indicated — see below.' : '');
-  } else {
-    verdict = 'Outside window'; color = '#d6d3d1'; badgeClass = 'badge-muted';
-    txt = 'Patient is outside the evidence-based window for ' + d.name + ' (primary: ' + d.rec_up_to + 'h' + (d.sug_up_to ? ', extended to ' + d.sug_up_to + 'h' : '') + '). AC is not recommended at ' + hours.toFixed(1) + 'h post-ingestion.';
-  }
+};
 
-  panel.style.borderLeftColor = color;
-  badge.className = 'vbadge ' + badgeClass;
-  badge.textContent = verdict;
-  document.getElementById('meta_rec').textContent = verdict;
-  document.getElementById('res_text').innerHTML = txt;
+const TABLE_4 = {};
+Object.keys(DATA).forEach(cat => {
+    Object.keys(DATA[cat]).forEach(key => {
+        TABLE_4[key] = { ...DATA[cat][key], category: cat, id: key };
+    });
+});
 
-  // MDAC note
-  if (d.mdac.rec !== 'Not Recommended') {
-    const n = document.createElement('div');
-    n.className = 'note note-violet';
-    n.innerHTML = '<span class="note-icon">🔄</span><div class="note-body"><strong>MDAC — ' + d.mdac.rec + ' (Grade ' + d.mdac.grade + ')</strong>Multiple-dose AC is ' + d.mdac.rec.toLowerCase() + ' for enhanced systemic elimination via enterohepatic / enteroenteric circulation. Regimen: 50 g every 4h or 25 g every 2h (adult).</div>';
-    notes.appendChild(n);
-  }
+let currentForm = 'IR';
 
-  addDrugNotes(d, notes);
+function toggleSimulation() { document.getElementById('simulation_dashboard').classList.toggle('hidden'); }
+
+function filterDrugs(query) {
+    const resultsDiv = document.getElementById('search_results');
+    resultsDiv.innerHTML = '';
+    const q = query.toLowerCase();
+    if (q === '') { resultsDiv.style.display = 'none'; return; }
+    let matches = 0;
+    Object.values(TABLE_4).forEach(drug => {
+        if (drug.name.toLowerCase().includes(q) || drug.category.toLowerCase().includes(q)) {
+            const div = document.createElement('div');
+            div.className = 'search-item p-4 border-b border-slate-50 cursor-pointer transition-colors';
+            div.innerHTML = `<div class="font-black text-sm">${drug.name}</div><div class="text-[9px] uppercase tracking-widest text-slate-400">${drug.category}</div>`;
+            div.onclick = () => selectDrug(drug.id);
+            resultsDiv.appendChild(div);
+            matches++;
+        }
+    });
+    resultsDiv.style.display = matches > 0 ? 'block' : 'none';
 }
 
-function addDrugNotes(d, container) {
-  if (!d.notes || !d.notes.length) return;
-  d.notes.forEach(txt => {
-    const n = document.createElement('div');
-    n.className = 'note note-muted';
-    n.innerHTML = '<span class="note-icon">ℹ️</span><div class="note-body"><strong>Clinical note</strong>' + txt + '</div>';
-    container.appendChild(n);
-  });
+function selectDrug(id) {
+    const drug = TABLE_4[id];
+    document.getElementById('toxin_value').value = id;
+    document.getElementById('drug_search').value = drug.name;
+    document.getElementById('search_results').style.display = 'none';
+    updateDrugUI();
+}
+
+function showSearchResults() { 
+    const val = document.getElementById('drug_search').value;
+    if (val !== '') filterDrugs(val);
+    else {
+        const resultsDiv = document.getElementById('search_results');
+        resultsDiv.innerHTML = '<div class="p-4 text-[10px] font-bold text-slate-400 uppercase">Paracetamol, Digoxin, Lithium...</div>';
+        resultsDiv.style.display = 'block';
+    }
+}
+
+function updateDrugUI() {
+    const key = document.getElementById('toxin_value').value;
+    const drug = TABLE_4[key];
+    if (!drug) return;
+    document.getElementById('dose_unit').value = drug.unit === "TD" ? "td" : (drug.unit === "g" ? "g" : "mg_kg");
+    const container = document.getElementById('mr_container');
+    if (drug.mr) { container.style.opacity = "1"; container.style.pointerEvents = "auto"; } 
+    else { container.style.opacity = "0.3"; container.style.pointerEvents = "none"; setFormType('IR'); }
+}
+
+function setFormType(f) {
+    currentForm = f;
+    document.getElementById('btn_IR').className = f === 'IR' ? "py-3 font-black text-sm rounded-xl bg-slate-900 text-white shadow-md" : "py-3 font-black text-sm rounded-xl text-slate-400";
+    document.getElementById('btn_MR').className = f === 'MR' ? "py-3 font-black text-sm rounded-xl bg-slate-900 text-white shadow-md" : "py-3 font-black text-sm rounded-xl text-slate-400";
+}
+
+function syncSlider(v) { document.getElementById('time_slider').value = v; }
+function syncInput(v) { document.getElementById('hrs_input').value = v; }
+
+function evaluateCore(key, dose, unit, form, hrs, weight) {
+    const drug = TABLE_4[key];
+    if (!drug) return null;
+    if (drug.contraindicated) return { status: drug.grade_ir, reason: drug.reason, pass: false, type: 'not', adac: false };
+    const valMgKg = unit === 'mg_kg' ? dose : (unit === 'mg' ? dose/weight : (unit === 'g' ? dose*1000/weight : dose));
+    const sdacMet = (valMgKg >= drug.sdac_thresh);
+    if (!sdacMet) return { status: "Not Recommended", reason: `Below Dose Threshold (${drug.sdac_thresh})`, pass: false, type: 'not', adac: false };
+    let t1 = (form === 'MR') ? (drug.t1_mr || drug.t1) : drug.t1;
+    let t2 = (form === 'MR') ? (drug.t2_mr || drug.t2) : drug.t2;
+    let baseGrade = (form === 'MR') ? (drug.grade_mr || drug.grade_ir) : drug.grade_ir;
+    let eval = { pass: false, status: "Not Recommended", reason: "Expired Window", type: 'not' };
+    if (hrs <= t1) eval = { pass: true, status: baseGrade, reason: `Optimal Window (≤${t1}h)`, type: baseGrade.includes('Strong') ? 'strong' : 'weak' };
+    else if (hrs <= t2) eval = { pass: true, status: "Weak Recommendation (D)", reason: `Extended Window (≤${t2}h)`, type: 'weak' };
+    let adacMet = false;
+    if (eval.pass && drug.adac_grade !== "None") {
+        if (form === 'MR') adacMet = true;
+        else if (drug.adac_thresh_ir && valMgKg >= drug.adac_thresh_ir) adacMet = true;
+        else if (["carbamazepine", "phenobarbital", "dapsone", "theophylline"].includes(key)) adacMet = true;
+    }
+    return { ...eval, adac: adacMet, adacGrade: drug.adac_grade };
+}
+
+function manualRun() {
+    const key = document.getElementById('toxin_value').value;
+    if (!key) return;
+    const dose = parseFloat(document.getElementById('ingested_dose').value) || 0;
+    const unit = document.getElementById('dose_unit').value;
+    const hrs = parseFloat(document.getElementById('hrs_input').value);
+    const weight = parseFloat(document.getElementById('weight').value) || 70;
+    const res = evaluateCore(key, dose, unit, currentForm, hrs, weight);
+    updateUI(key, res, weight);
+}
+
+function updateUI(key, result, weight) {
+    const drug = TABLE_4[key];
+    document.getElementById('results_area').classList.remove('hidden');
+    document.getElementById('res_name').textContent = drug.name;
+    document.getElementById('res_status_title').textContent = result.status;
+    document.getElementById('res_status_sub').textContent = result.reason;
+    document.getElementById('calculated_dose').textContent = result.pass ? Math.min(Math.round(weight), 50) + " g" : "0 g";
+    document.getElementById('status_banner').className = `p-8 text-center uppercase tracking-[0.2em] status-${result.type}`;
+    const adac = document.getElementById('adac_panel');
+    if (result.adac) {
+        adac.className = "p-6 rounded-2xl border-2 adac-active";
+        document.getElementById('adac_grade_badge').textContent = result.adacGrade;
+        document.getElementById('adac_description').textContent = "MDAC/ADAC logic triggered.";
+    } else {
+        adac.className = "p-6 rounded-2xl border-2 opacity-30 bg-slate-50";
+        document.getElementById('adac_grade_badge').textContent = "None";
+        document.getElementById('adac_description').textContent = "Multi-dose protocol not indicated.";
+    }
+}
+
+function runComprehensiveSimulation() {
+    const tbody = document.getElementById('sim_results_body');
+    tbody.innerHTML = '';
+    const keys = Object.keys(TABLE_4);
+    for (let i = 0; i < 50; i++) {
+        const drugId = keys[Math.floor(Math.random() * keys.length)];
+        const drug = TABLE_4[drugId];
+        const hrs = parseFloat((Math.random() * 6).toFixed(1));
+        const form = (drug.mr && Math.random() > 0.5) ? 'MR' : 'IR';
+        const unit = ["mg_kg", "mg", "g", "td"][Math.floor(Math.random() * 4)];
+        let dose = drug.sdac_thresh * (Math.random() > 0.5 ? 2 : 0.5);
+        const res = evaluateCore(drugId, dose, unit, form, hrs, 70);
+        const row = document.createElement('tr');
+        const color = res.type === 'strong' ? 'text-emerald-600' : (res.type === 'weak' ? 'text-blue-600' : 'text-rose-600');
+        row.innerHTML = `<td>${drug.name.substring(0,12)}</td><td>${dose.toFixed(1)}${unit}</td><td>${hrs}h</td><td class="${color} font-bold">${res.status}</td><td>${res.adac ? '✅' : '—'}</td>`;
+        tbody.appendChild(row);
+    }
 }
 </script>
 </body>
