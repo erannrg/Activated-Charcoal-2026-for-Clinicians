@@ -389,3 +389,246 @@ const db = {
         MR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "200 mg/kg" }
     },
     "venlafaxine": {
+        name: "Venlafaxine",
+        IR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "25 mg/kg" },
+        MR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "25 mg/kg" }
+    },
+    "warfarin": {
+        name: "Warfarin",
+        IR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "0.7 mg/kg" },
+        MR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "0.7 mg/kg" }
+    }
+};
+
+// ========== Helpers ==========
+
+function validateDb() {
+    const allowedRecs = ["strong", "weak", "none"];
+    let ok = true;
+    Object.entries(db).forEach(([key, drug]) => {
+        ["IR", "MR"].forEach(form => {
+            const d = drug[form];
+            if (!d) return;
+            if (!allowedRecs.includes(d.rec)) {
+                console.error(`Invalid rec for ${key} ${form}`);
+                ok = false;
+            }
+            if (typeof d.maxHours !== "number") {
+                console.error(`Invalid maxHours for ${key} ${form}`);
+                ok = false;
+            }
+            if (d.threshold == null) {
+                console.error(`Missing threshold for ${key} ${form}`);
+                ok = false;
+            }
+        });
+    });
+    if (ok) console.log(`DB validation passed for ${Object.keys(db).length} poisons.`);
+}
+
+function parseNumericThreshold(thresholdText) {
+    const match = thresholdText.match(/[\d.]+/);
+    if (!match) return null;
+    return parseFloat(match[0]);
+}
+
+function getThresholdUnit(thresholdText) {
+    if (thresholdText.includes("mg/kg")) return "mgkg";
+    if (thresholdText.includes(" g") || thresholdText.endsWith("g")) return "g";
+    if (thresholdText.includes("TD")) return "TD";
+    if (thresholdText.includes("µg/kg")) return "mgkg";
+    return null;
+}
+
+// ========== UI + Logic ==========
+
+let currentForm = "IR";
+
+function populateDrugs() {
+    const select = document.getElementById("drug");
+    select.innerHTML = '<option value="">-- Select Poison --</option>';
+    Object.keys(db).forEach(key => {
+        const opt = document.createElement("option");
+        opt.value = key;
+        opt.textContent = db[key].name;
+        select.appendChild(opt);
+    });
+}
+
+function setForm(f) {
+    currentForm = f;
+    const btnIR = document.getElementById("btnIR");
+    const btnMR = document.getElementById("btnMR");
+
+    if (f === "IR") {
+        btnIR.classList.add("bg-slate-900", "text-white", "border-slate-900");
+        btnMR.classList.remove("bg-slate-900", "text-white", "border-slate-900");
+    } else {
+        btnMR.classList.add("bg-slate-900", "text-white", "border-slate-900");
+        btnIR.classList.remove("bg-slate-900", "text-white", "border-slate-900");
+    }
+    runRecommendation();
+}
+
+function updateHours() {
+    const h = parseFloat(document.getElementById("hours").value);
+    document.getElementById("hours_val").textContent = h.toFixed(1) + " hours";
+    runRecommendation();
+}
+
+function computeDoseMgPerKg(doseVal, unit, weightKg) {
+    if (!doseVal || isNaN(doseVal)) return null;
+    if (unit === "mgkg") return doseVal;
+    if (!weightKg || isNaN(weightKg) || weightKg <= 0) return null;
+
+    if (unit === "mg") return doseVal / weightKg;
+    if (unit === "g") return (doseVal * 1000) / weightKg;
+    return null; // TD not convertible to mg/kg
+}
+
+function runRecommendation() {
+    const key = document.getElementById("drug").value;
+    if (!key) return;
+
+    const drug = db[key];
+    const hours = parseFloat(document.getElementById("hours").value);
+    const doseVal = parseFloat(document.getElementById("dose").value);
+    const doseUnit = document.getElementById("unit").value;
+    const weight = parseFloat(document.getElementById("weight").value);
+
+    const data = drug[currentForm] || drug.IR;
+
+    // Safety check
+    if (!document.getElementById("airway").checked || !document.getElementById("gi").checked) {
+        document.getElementById("status").innerHTML = "❌ SAFETY CHECK FAILED — Confirm protected airway and no GI perforation risk before considering AC.";
+        document.getElementById("status").className = "p-8 rounded-2xl text-center text-xl font-black mb-6 bg-red-600 text-white";
+        document.getElementById("result").classList.remove("hidden");
+        document.getElementById("drug_name").textContent = drug.name + " (" + currentForm + ")";
+        document.getElementById("details").innerHTML = `
+            <div><strong>Threshold:</strong> ${data.threshold}</div>
+            <div><strong>Maximum time window:</strong> ${data.maxHours > 0 ? data.maxHours + " hours" : "No role for AC"}</div>
+        `;
+        return;
+    }
+
+    // ----- TIME-BASED RECOMMENDATION -----
+    let statusHTML = "";
+    let statusClass = "";
+    let timeReason = "";
+
+    if (data.rec === "none") {
+        statusHTML = "❌ NOT RECOMMENDED — Activated charcoal has no recommended role for this poison.";
+        statusClass = "none";
+        timeReason = "No time window is defined because AC is not recommended.";
+    } else {
+        const maxWindow = data.suggestHours || data.maxHours;
+        if (hours <= data.maxHours) {
+            if (data.rec === "strong") {
+                statusHTML = "✅ STRONG RECOMMENDATION — Single-dose activated charcoal (SDAC) is recommended.";
+                statusClass = "strong";
+                timeReason = `Within primary strong window (≤ ${data.maxHours} hours).`;
+            } else {
+                statusHTML = "🟡 WEAK RECOMMENDATION — SDAC may be considered based on individual risk-benefit assessment.";
+                statusClass = "weak";
+                timeReason = `Within weak recommendation window (≤ ${data.maxHours} hours).`;
+            }
+        } else if (data.suggestHours && hours > data.maxHours && hours <= data.suggestHours) {
+            statusHTML = `🟡 WEAK RECOMMENDATION — AC may still be considered (extended suggest window up to ${data.suggestHours} hours).`;
+            statusClass = "weak";
+            timeReason = `Within extended suggest window (${data.maxHours}–${data.suggestHours} hours).`;
+        } else {
+            statusHTML = `⚠️ NOT RECOMMENDED — Time since ingestion (${hours.toFixed(1)} h) exceeds the recommended window (${maxWindow} h).`;
+            statusClass = "none";
+            timeReason = `Beyond maximum allowed time window (${maxWindow} hours).`;
+        }
+    }
+
+    // ----- DOSE-BASED OVERRIDE -----
+    let doseReason = "";
+    const thText = data.threshold;
+    let doseOverride = false;
+
+    if (doseVal && !isNaN(doseVal) && thText && thText !== "Any dose" && thText !== "Individual Risk") {
+        const thNum = parseNumericThreshold(thText);
+        const thUnit = getThresholdUnit(thText);
+
+        if (thUnit === "mgkg") {
+            const actualMgKg = computeDoseMgPerKg(doseVal, doseUnit, weight);
+            if (actualMgKg == null) {
+                doseReason = "Unable to compute mg/kg (missing or incompatible weight/unit).";
+            } else if (actualMgKg < thNum) {
+                doseOverride = true;
+                statusHTML = `⚠️ NOT RECOMMENDED — Calculated dose (${actualMgKg.toFixed(1)} mg/kg) is below the intervention threshold (${thText}).`;
+                statusClass = "none";
+                doseReason = "Dose is below the minimum ingested dose for intervention specified in Table 4.";
+            } else {
+                doseReason = `Calculated dose (${actualMgKg.toFixed(1)} mg/kg) is ≥ threshold (${thText}); AC may be appropriate if time window and clinical context support it.`;
+            }
+        } else if (thUnit === "g" || thUnit === "TD") {
+            if (doseUnit !== thUnit) {
+                doseReason = `Threshold (${thText}) and entered dose cannot be strictly compared (different units).`;
+            } else if (doseVal < thNum) {
+                doseOverride = true;
+                statusHTML = `⚠️ NOT RECOMMENDED — Ingested dose (${doseVal} ${doseUnit}) is below the intervention threshold (${thText}).`;
+                statusClass = "none";
+                doseReason = "Dose is below the minimum ingested dose for intervention specified in Table 4.";
+            } else {
+                doseReason = `Dose is ≥ threshold (${thText}); AC may be appropriate if time window and clinical context support it.`;
+            }
+        } else {
+            doseReason = "Threshold format not directly comparable.";
+        }
+    } else if (thText === "Any dose") {
+        doseReason = "Any dose may qualify; decision is driven by time window and clinical context.";
+    } else if (thText === "Individual Risk") {
+        doseReason = "Threshold is defined as individual risk; use clinical judgment regarding dose magnitude.";
+    } else {
+        doseReason = "Dose not provided or not comparable to threshold.";
+    }
+
+    // ----- ADAC MESSAGE (פשוט) -----
+    let adacMessage = "";
+    if (!doseVal || isNaN(doseVal)) {
+        adacMessage = "ADAC may be considered only if there is clear evidence of prolonged absorption or massive ingestion.";
+    } else {
+        adacMessage = "If there is evidence of prolonged absorption (MR, pharmacobezoar, gastroparesis), consider ADAC in addition to SDAC.";
+    }
+
+    // ----- Render -----
+    document.getElementById("result").classList.remove("hidden");
+    document.getElementById("drug_name").textContent = drug.name + " (" + currentForm + ")";
+    document.getElementById("status").innerHTML = statusHTML;
+    document.getElementById("status").className = `p-8 rounded-2xl text-center text-2xl font-black mb-6 ${statusClass}`;
+
+    const timeWindowText =
+        data.rec === "none"
+            ? "No recommended time window for AC."
+            : (data.suggestHours
+                ? `Primary window: up to ${data.maxHours} hours. Extended suggest window: up to ${data.suggestHours} hours.`
+                : `Maximum recommended window: up to ${data.maxHours} hours.`);
+
+    document.getElementById("details").innerHTML = `
+        <div><strong>Formulation:</strong> ${currentForm}</div>
+        <div><strong>Recommendation strength (time-based):</strong> ${
+            data.rec === "strong" ? "Strong" :
+            data.rec === "weak" ? "Weak" :
+            "Not recommended"
+        }</div>
+        <div><strong>Time frame:</strong> ${timeWindowText}</div>
+        <div><strong>Time-based reasoning:</strong> ${timeReason}</div>
+        <div><strong>Threshold (Min. ingested dose for intervention):</strong> ${data.threshold}</div>
+        <div><strong>Dose-based reasoning:</strong> ${doseReason}</div>
+        <div><strong>ADAC (Additional-dose AC):</strong> ${adacMessage}</div>
+        <div class="text-xs text-slate-500 mt-4">
+            This tool reflects Table 4 SDAC recommendations, uses patient weight to interpret mg and mg/kg, and treats doses below threshold as not recommended. MDAC is not implemented.
+        </div>
+    `;
+}
+
+// Init
+populateDrugs();
+updateHours();
+validateDb();
+</script>
+</body>
+</html>
