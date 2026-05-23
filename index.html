@@ -48,19 +48,100 @@
 
         <div>
             <label class="block text-sm font-semibold text-slate-500 mb-2">3. Hours since ingestion</label>
+            <input type="range" id="hours" min="0" max="24" step="0.1" value="2" class="w-full" oninput="updateHours()מעולה, זה בדיוק סוג הדיוקים שעושים את הכלי באמת קליני ולא רק “גאדג’ט”.
+
+אני אתן לך עכשיו **קוד מלא מעודכן** עם:
+
+- שדה **משקל החולה (kg)**  
+- שדה מינון שכולל **יחידות mg** (לא רק mg/kg, g, TD)  
+- לוגיקה שמחשבת **mg/kg בפועל** כשיש גם משקל וגם מינון ב־mg  
+- שמירה על כל מה שסיכמנו:  
+  - **43 תרופות בלבד, בדיוק לפי הטבלה**  
+  - **IR/MR עם חלונות זמן נפרדים**  
+  - **Recommend = strong, Suggest = weak, Not Recommended = none**  
+  - **אם המינון בפועל נמוך מהסף → Not recommended**  
+  - **Paracetamol MR: מעל 5 שעות → Not recommended** (כפי שביקשת)  
+  - **ADAC רק כהערת טקסט, בלי לשנות את ההמלצה הבסיסית**
+
+> שים לב: אני מתמקד כאן ב־HTML+JS אחד שלם, שתוכל פשוט להדביק לקובץ ולרוץ.
+
+```html
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <title>Activated Charcoal Tool 2026 - Table 4 Exact</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .strong { background-color: #166534; color: white; }
+        .weak { background-color: #1e40af; color: white; }
+        .none { background-color: #991b1b; color: white; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans">
+<div class="max-w-4xl mx-auto p-6">
+
+    <h1 class="text-4xl font-black mb-1">Activated Charcoal Tool 2026</h1>
+    <p class="text-slate-600 mb-8">Strictly aligned with Table 4 — Clinical Toxicology Recommendations Collaborative</p>
+
+    <!-- Safety Checklist -->
+    <div class="bg-amber-50 border border-amber-300 rounded-2xl p-6 mb-8">
+        <h3 class="font-bold text-amber-900 mb-3">✅ Mandatory Safety Checks</h3>
+        <label class="flex items-center gap-3 mb-2">
+            <input type="checkbox" id="airway" class="w-5 h-5 accent-emerald-600">
+            Airway protected (intact reflexes or intubated)
+        </label>
+        <label class="flex items-center gap-3">
+            <input type="checkbox" id="gi" class="w-5 h-5 accent-emerald-600">
+            No risk of GI perforation or obstruction
+        </label>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-xl p-8 space-y-8">
+        <div>
+            <label class="block text-sm font-semibold text-slate-500 mb-2">1. Poison</label>
+            <select id="drug" class="w-full p-4 border-2 border-slate-200 rounded-2xl text-lg" onchange="runRecommendation()">
+                <option value="">-- Select Poison --</option>
+            </select>
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold text-slate-500 mb-2">2. Formulation</label>
+            <div class="flex gap-3">
+                <button onclick="setForm('IR')" id="btnIR" class="flex-1 py-4 font-bold rounded-2xl border-2 border-slate-900 bg-slate-900 text-white">IR</button>
+                <button onclick="setForm('MR')" id="btnMR" class="flex-1 py-4 font-bold rounded-2xl border-2">MR</button>
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold text-slate-500 mb-2">3. Hours since ingestion</label>
             <input type="range" id="hours" min="0" max="24" step="0.1" value="2" class="w-full" oninput="updateHours()">
             <div class="text-center font-bold text-2xl mt-2" id="hours_val">2.0 hours</div>
         </div>
 
-        <div>
-            <label class="block text-sm font-semibold text-slate-500 mb-2">4. Estimated Dose (optional)</label>
-            <div class="flex gap-3">
-                <input type="number" id="dose" placeholder="e.g. 10" class="flex-1 p-4 border-2 border-slate-200 rounded-2xl">
-                <select id="unit" class="p-4 border-2 border-slate-200 rounded-2xl">
-                    <option value="mgkg">mg/kg</option>
-                    <option value="g">g</option>
-                    <option value="TD">TD</option>
-                </select>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-semibold text-slate-500 mb-2">4. Patient weight</label>
+                <div class="flex items-center gap-2">
+                    <input type="number" id="weight" placeholder="e.g. 70" class="flex-1 p-4 border-2 border-slate-200 rounded-2xl">
+                    <span class="text-sm font-semibold text-slate-500">kg</span>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-500 mb-2">5. Estimated Dose (optional)</label>
+                <div class="flex gap-3">
+                    <input type="number" id="dose" placeholder="e.g. 1000" class="flex-1 p-4 border-2 border-slate-200 rounded-2xl">
+                    <select id="unit" class="p-4 border-2 border-slate-200 rounded-2xl">
+                        <option value="mgkg">mg/kg</option>
+                        <option value="mg">mg</option>
+                        <option value="g">g</option>
+                        <option value="TD">TD</option>
+                    </select>
+                </div>
+                <p class="text-xs text-slate-500 mt-1">
+                    Example: 1000 mg, 20 mg/kg, 2 g, or 5 TD.
+                </p>
             </div>
         </div>
 
@@ -81,27 +162,16 @@
 // Exact Table 4 Data Model
 // =========================
 // rec: "strong" | "weak" | "none"
-// maxHours: last hour for primary recommendation window
-// suggestHours: last hour for extended "Suggest" window (if exists)
+// maxHours: last hour for primary window (Recommend or Suggest)
+// suggestHours: last hour for extended Suggest window (only where explicitly stated)
 // threshold: exact "Min. Ingested Dose for Intervention" text
-// For "Any" formulation in the table, IR and MR are identical here.
 
 const db = {
     "acetaminophen": {
         name: "Acetaminophen",
-        IR: {
-            rec: "strong",
-            maxHours: 2,
-            suggestHours: 4,
-            threshold: "200 mg/kg"
-        },
-        // Per your instruction: MR > 5h → Not recommended
-        MR: {
-            rec: "strong",
-            maxHours: 4,
-            suggestHours: 5,
-            threshold: "Individual Risk"
-        }
+        IR: { rec: "strong", maxHours: 2, suggestHours: 4, threshold: "200 mg/kg" },
+        // לפי ההערה שלך: מעבר ל־5 שעות → Not recommended
+        MR: { rec: "strong", maxHours: 4, suggestHours: 5, threshold: "Individual Risk" }
     },
     "alcohols": {
         name: "Alcohols (Ethanol / Methanol / Ethylene Glycol)",
@@ -285,18 +355,8 @@ const db = {
     },
     "salicylates": {
         name: "Salicylates",
-        IR: {
-            rec: "strong",
-            maxHours: 2,
-            suggestHours: 4,
-            threshold: "200 mg/kg"
-        },
-        MR: {
-            rec: "weak",
-            maxHours: 12,
-            suggestHours: null,
-            threshold: "Individual Risk"
-        }
+        IR: { rec: "strong", maxHours: 2, suggestHours: 4, threshold: "200 mg/kg" },
+        MR: { rec: "weak", maxHours: 12, suggestHours: null, threshold: "Individual Risk" }
     },
     "ssri": {
         name: "SSRI",
@@ -329,243 +389,3 @@ const db = {
         MR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "200 mg/kg" }
     },
     "venlafaxine": {
-        name: "Venlafaxine",
-        IR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "25 mg/kg" },
-        MR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "25 mg/kg" }
-    },
-    "warfarin": {
-        name: "Warfarin",
-        IR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "0.7 mg/kg" },
-        MR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "0.7 mg/kg" }
-    }
-};
-
-// =========================
-// Internal DB Validator
-// =========================
-function validateDb() {
-    const allowedRecs = ["strong", "weak", "none"];
-    let ok = true;
-    Object.entries(db).forEach(([key, drug]) => {
-        ["IR", "MR"].forEach(form => {
-            const d = drug[form];
-            if (!d) return;
-            if (!allowedRecs.includes(d.rec)) {
-                console.error(`Invalid rec for ${key} ${form}`);
-                ok = false;
-            }
-            if (typeof d.maxHours !== "number") {
-                console.error(`Invalid maxHours for ${key} ${form}`);
-                ok = false;
-            }
-            if (d.threshold == null) {
-                console.error(`Missing threshold for ${key} ${form}`);
-                ok = false;
-            }
-        });
-    });
-    if (ok) {
-        console.log(`DB validation passed for ${Object.keys(db).length} poisons.`);
-    }
-}
-
-// =========================
-// Helpers for dose/threshold
-// =========================
-function parseNumericThreshold(thresholdText) {
-    const match = thresholdText.match(/[\d.]+/);
-    if (!match) return null;
-    return parseFloat(match[0]);
-}
-
-function getThresholdUnit(thresholdText) {
-    if (thresholdText.includes("mg/kg")) return "mgkg";
-    if (thresholdText.includes(" g") || thresholdText.endsWith("g")) return "g";
-    if (thresholdText.includes("TD")) return "TD";
-    if (thresholdText.includes("µg/kg")) return "mgkg"; // treat as mg/kg scale for comparison
-    return null;
-}
-
-// =========================
-// UI + Logic
-// =========================
-
-let currentForm = "IR";
-
-function populateDrugs() {
-    const select = document.getElementById("drug");
-    select.innerHTML = '<option value="">-- Select Poison --</option>';
-    Object.keys(db).forEach(key => {
-        const opt = document.createElement("option");
-        opt.value = key;
-        opt.textContent = db[key].name;
-        select.appendChild(opt);
-    });
-}
-
-function setForm(f) {
-    currentForm = f;
-    const btnIR = document.getElementById("btnIR");
-    const btnMR = document.getElementById("btnMR");
-
-    if (f === "IR") {
-        btnIR.classList.add("bg-slate-900", "text-white", "border-slate-900");
-        btnMR.classList.remove("bg-slate-900", "text-white", "border-slate-900");
-    } else {
-        btnMR.classList.add("bg-slate-900", "text-white", "border-slate-900");
-        btnIR.classList.remove("bg-slate-900", "text-white", "border-slate-900");
-    }
-    runRecommendation();
-}
-
-function updateHours() {
-    const h = parseFloat(document.getElementById("hours").value);
-    document.getElementById("hours_val").textContent = h.toFixed(1) + " hours";
-    runRecommendation();
-}
-
-function buildAdacMessage(drugData, doseVal, doseUnit) {
-    if (!doseVal || isNaN(doseVal)) {
-        return "Dose not provided — ADAC may be considered only if prolonged absorption or very large ingestion is suspected.";
-    }
-    const thText = drugData.threshold;
-    if (thText === "Any dose" || thText === "Individual Risk") {
-        return `Threshold: ${thText}. Use individual risk assessment for ADAC in the context of ongoing absorption or massive ingestion.`;
-    }
-    const thNum = parseNumericThreshold(thText);
-    const thUnit = getThresholdUnit(thText);
-    if (!thNum || !thUnit || thUnit !== doseUnit) {
-        return `Threshold: ${thText}. Entered dose cannot be strictly compared, but if ingestion is clinically large, consider ADAC when ongoing absorption is suspected.`;
-    }
-    if (doseVal >= thNum) {
-        return `Entered dose (${doseVal} ${doseUnit}) is ≥ threshold (${thText}). If gastric contents are likely to persist (MR, pharmacobezoar, gastroparesis), consider additional-dose AC (ADAC).`;
-    } else {
-        return `Entered dose (${doseVal} ${doseUnit}) is < threshold (${thText}). ADAC is usually not indicated solely on dose; consider only if there is clear evidence of prolonged absorption.`;
-    }
-}
-
-function runRecommendation() {
-    const key = document.getElementById("drug").value;
-    if (!key) return;
-
-    const drug = db[key];
-    const hours = parseFloat(document.getElementById("hours").value);
-    const doseVal = parseFloat(document.getElementById("dose").value);
-    const doseUnit = document.getElementById("unit").value;
-
-    const data = drug[currentForm] || drug.IR;
-
-    // Safety check
-    if (!document.getElementById("airway").checked || !document.getElementById("gi").checked) {
-        document.getElementById("status").innerHTML = "❌ SAFETY CHECK FAILED — Confirm protected airway and no GI perforation risk before considering AC.";
-        document.getElementById("status").className = "p-8 rounded-2xl text-center text-xl font-black mb-6 bg-red-600 text-white";
-        document.getElementById("result").classList.remove("hidden");
-        document.getElementById("drug_name").textContent = drug.name + " (" + currentForm + ")";
-        document.getElementById("details").innerHTML = `
-            <div><strong>Threshold:</strong> ${data.threshold}</div>
-            <div><strong>Maximum time window:</strong> ${data.maxHours > 0 ? data.maxHours + " hours" : "No role for AC"}</div>
-        `;
-        return;
-    }
-
-    // Base recommendation by time
-    let statusHTML = "";
-    let statusClass = "";
-    let timeReason = "";
-
-    if (data.rec === "none") {
-        statusHTML = "❌ NOT RECOMMENDED — Activated charcoal has no recommended role for this poison.";
-        statusClass = "none";
-        timeReason = "No time window is defined because AC is not recommended.";
-    } else {
-        if (hours <= data.maxHours) {
-            if (data.rec === "strong") {
-                statusHTML = "✅ STRONG RECOMMENDATION — Single-dose activated charcoal (SDAC) is recommended.";
-                statusClass = "strong";
-                timeReason = `Within primary window (≤ ${data.maxHours} hours).`;
-            } else if (data.rec === "weak") {
-                statusHTML = "🟡 WEAK RECOMMENDATION — SDAC may be considered based on individual risk-benefit assessment.";
-                statusClass = "weak";
-                timeReason = `Within weak recommendation window (≤ ${data.maxHours} hours).`;
-            }
-        } else if (data.suggestHours && hours > data.maxHours && hours <= data.suggestHours) {
-            // Extended suggest window (always weak)
-            statusHTML = `🟡 WEAK RECOMMENDATION — AC may still be considered (extended window up to ${data.suggestHours} hours) based on individual risk assessment.`;
-            statusClass = "weak";
-            timeReason = `Within extended suggest window (${data.maxHours}–${data.suggestHours} hours).`;
-        } else {
-            statusHTML = `⚠️ NOT RECOMMENDED — Time since ingestion (${hours.toFixed(1)} h) exceeds the recommended window.`;
-            statusClass = "none";
-            const limit = data.suggestHours || data.maxHours;
-            timeReason = `Beyond maximum allowed time window (${limit} hours).`;
-        }
-    }
-
-    // Dose-based override: if dose < threshold → Not recommended
-    let doseReason = "";
-    let doseOverride = false;
-    const thText = data.threshold;
-
-    if (doseVal && !isNaN(doseVal) && thText && thText !== "Any dose" && thText !== "Individual Risk") {
-        const thNum = parseNumericThreshold(thText);
-        const thUnit = getThresholdUnit(thText);
-        if (thNum && thUnit && thUnit === doseUnit) {
-            if (doseVal < thNum) {
-                // Override to NOT RECOMMENDED
-                doseOverride = true;
-                statusHTML = `⚠️ NOT RECOMMENDED — Ingested dose (${doseVal} ${doseUnit}) is below the intervention threshold (${thText}).`;
-                statusClass = "none";
-                doseReason = `Dose is below the minimum ingested dose for intervention specified in Table 4.`;
-            } else {
-                doseReason = `Dose is ≥ threshold (${thText}); AC may be appropriate if time window and clinical context support it.`;
-            }
-        } else {
-            doseReason = `Threshold (${thText}) and entered dose cannot be strictly compared (different or unclear units).`;
-        }
-    } else if (thText === "Any dose") {
-        doseReason = "Any dose may qualify; decision is driven by time window and clinical context.";
-    } else if (thText === "Individual Risk") {
-        doseReason = "Threshold is defined as individual risk; use clinical judgment regarding dose magnitude.";
-    } else {
-        doseReason = "Dose not provided or not comparable to threshold.";
-    }
-
-    const adacMessage = buildAdacMessage(data, doseVal, doseUnit);
-
-    document.getElementById("result").classList.remove("hidden");
-    document.getElementById("drug_name").textContent = drug.name + " (" + currentForm + ")";
-    document.getElementById("status").innerHTML = statusHTML;
-    document.getElementById("status").className = `p-8 rounded-2xl text-center text-2xl font-black mb-6 ${statusClass}`;
-
-    const timeWindowText =
-        data.rec === "none"
-            ? "No recommended time window for AC."
-            : (data.suggestHours
-                ? `Primary window: up to ${data.maxHours} hours. Extended suggest window: up to ${data.suggestHours} hours.`
-                : `Maximum recommended window: up to ${data.maxHours} hours.`);
-
-    document.getElementById("details").innerHTML = `
-        <div><strong>Formulation:</strong> ${currentForm}</div>
-        <div><strong>Recommendation strength (time-based):</strong> ${
-            data.rec === "strong" ? "Strong" :
-            data.rec === "weak" ? "Weak" :
-            "Not recommended"
-        }</div>
-        <div><strong>Time frame:</strong> ${timeWindowText}</div>
-        <div><strong>Time-based reasoning:</strong> ${timeReason}</div>
-        <div><strong>Threshold (Min. ingested dose for intervention):</strong> ${data.threshold}</div>
-        <div><strong>Dose-based reasoning:</strong> ${doseReason}</div>
-        <div><strong>ADAC (Additional-dose AC):</strong> ${adacMessage}</div>
-        <div class="text-xs text-slate-500 mt-4">
-            This tool reflects Table 4 recommendations for SDAC and dose thresholds, excludes MDAC, and treats doses below threshold as not recommended.
-        </div>
-    `;
-}
-
-// Initialize
-populateDrugs();
-updateHours();
-validateDb();
-</script>
-</body>
-</html>
