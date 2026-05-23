@@ -1,10 +1,592 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>TEST CLEAN PAGE</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Activated Charcoal Tool 2026</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+.strong { background-color:#166534; color:white; }
+.weak   { background-color:#1e40af; color:white; }
+.none   { background-color:#991b1b; color:white; }
+</style>
 </head>
-<body>
-    <h1>אם אתה רואה את זה רק פעם אחת — הדף נקי</h1>
+
+<body class="bg-slate-50 min-h-screen font-sans">
+<div class="max-w-4xl mx-auto p-6">
+
+<h1 class="text-4xl font-black mb-1">Activated Charcoal Tool 2026</h1>
+<p class="text-slate-600 mb-8">Strictly aligned with Table 4 — Clinical Toxicology Recommendations Collaborative</p>
+
+<div class="bg-amber-50 border border-amber-300 rounded-2xl p-6 mb-8">
+<h3 class="font-bold text-amber-900 mb-3">Mandatory Safety Checks</h3>
+<label class="flex items-center gap-3 mb-2">
+<input type="checkbox" id="airway" class="w-5 h-5 accent-emerald-600">
+Airway protected (intact reflexes or intubated)
+</label>
+<label class="flex items-center gap-3">
+<input type="checkbox" id="gi" class="w-5 h-5 accent-emerald-600">
+No risk of GI perforation or obstruction
+</label>
+</div>
+
+<div class="bg-white rounded-3xl shadow-xl p-8 space-y-8">
+
+<div>
+<label class="block text-sm font-semibold text-slate-500 mb-2">1. Poison</label>
+<select id="drug" class="w-full p-4 border-2 border-slate-200 rounded-2xl text-lg" onchange="runRecommendation()">
+<option value="">-- Select Poison --</option>
+</select>
+</div>
+
+<div>
+<label class="block text-sm font-semibold text-slate-500 mb-2">2. Formulation</label>
+<div class="flex gap-3">
+<button onclick="setForm('IR')" id="btnIR" class="flex-1 py-4 font-bold rounded-2xl border-2 border-slate-900 bg-slate-900 text-white">IR</button>
+<button onclick="setForm('MR')" id="btnMR" class="flex-1 py-4 font-bold rounded-2xl border-2">MR</button>
+</div>
+</div>
+
+<div>
+<label class="block text-sm font-semibold text-slate-500 mb-2">3. Hours since ingestion</label>
+<input type="range" id="hours" min="0" max="24" step="0.1" value="2" class="w-full" oninput="updateHours()">
+<div class="text-center font-bold text-2xl mt-2" id="hours_val">2.0 hours</div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-semibold text-slate-500 mb-2">4. Patient weight</label>
+<div class="flex items-center gap-2">
+<input type="number" id="weight" placeholder="e.g. 70" class="flex-1 p-4 border-2 border-slate-200 rounded-2xl">
+<span class="text-sm font-semibold text-slate-500">kg</span>
+</div>
+</div>
+
+<div>
+<label class="block text-sm font-semibold text-slate-500 mb-2">5. Estimated Dose (optional)</label>
+<div class="flex gap-3">
+<input type="number" id="dose" placeholder="e.g. 1000" class="flex-1 p-4 border-2 border-slate-200 rounded-2xl">
+<select id="unit" class="p-4 border-2 border-slate-200 rounded-2xl">
+<option value="mgkg">mg/kg</option>
+<option value="mg">mg</option>
+<option value="g">g</option>
+<option value="TD">TD</option>
+</select>
+</div>
+</div>
+</div>
+
+<button onclick="runRecommendation()" class="w-full py-6 bg-slate-900 hover:bg-black text-white font-black text-xl rounded-3xl">
+GET RECOMMENDATION
+</button>
+
+</div>
+
+<div id="result" class="hidden mt-8 bg-white rounded-3xl shadow-xl p-8">
+<h2 id="drug_name" class="text-3xl font-black mb-4"></h2>
+<div id="status" class="p-8 rounded-2xl text-center text-2xl font-black mb-6"></div>
+<div id="details" class="text-sm space-y-3"></div>
+</div>
+
+</div>
+<script>
+// =========================
+// Exact Table 4 Data Model
+// =========================
+
+const db = {
+
+"acetaminophen": {
+    name: "Acetaminophen",
+    IR: { rec: "strong", maxHours: 2, suggestHours: 4, threshold: "200 mg/kg" },
+    MR: { rec: "strong", maxHours: 4, suggestHours: 5, threshold: "Individual Risk" }
+},
+
+"alcohols": {
+    name: "Alcohols (Ethanol / Methanol / Ethylene Glycol)",
+    IR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "Any dose" },
+    MR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "Any dose" }
+},
+
+"antidysrhythmics": {
+    name: "Antidysrhythmics (Type I/III)",
+    IR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "5 TD" },
+    MR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "5 TD" }
+},
+
+"arsenic": {
+    name: "Arsenic",
+    IR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "Any dose" },
+    MR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "Any dose" }
+},
+
+"benzodiazepines": {
+    name: "Benzodiazepines",
+    IR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "Any dose" },
+    MR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "Any dose" }
+},
+
+"beta_blockers": {
+    name: "Beta-adrenergic antagonists",
+    IR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "5-6 mg/kg (drug specific)" },
+    MR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "5-6 mg/kg (drug specific)" }
+},
+
+"bupropion": {
+    name: "Bupropion",
+    IR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "20 mg/kg" },
+    MR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "20 mg/kg" }
+},
+
+"caesium": {
+    name: "Caesium",
+    IR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "Any dose" },
+    MR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "Any dose" }
+},
+
+"ccb": {
+    name: "Calcium-channel blockers",
+    IR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "3-5 TD (drug specific)" },
+    MR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "3-5 TD (drug specific)" }
+},
+
+"carbamazepine": {
+    name: "Carbamazepine",
+    IR: { rec: "strong", maxHours: 4, suggestHours: null, threshold: "25 mg/kg" },
+    MR: { rec: "strong", maxHours: 4, suggestHours: null, threshold: "25 mg/kg" }
+},
+
+"digoxin": {
+    name: "Cardiac glycosides (Digoxin)",
+    IR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "75 µg/kg" },
+    MR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "75 µg/kg" }
+},
+
+"oleander": {
+    name: "Cardiac glycosides (Oleander)",
+    IR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "4 seeds" },
+    MR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "4 seeds" }
+},
+
+"chloroquine": {
+    name: "Chloroquine",
+    IR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "35 mg/kg" },
+    MR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "35 mg/kg" }
+},
+
+"cocaine": {
+    name: "Cocaine",
+    IR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "5 mg/kg" },
+    MR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "5 mg/kg" }
+},
+
+"colchicine": {
+    name: "Colchicine",
+    IR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "0.4 mg/kg" },
+    MR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "0.4 mg/kg" }
+},
+
+"copper": {
+    name: "Copper",
+    IR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "Any dose" },
+    MR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "Any dose" }
+},
+
+"cyanide": {
+    name: "Cyanide",
+    IR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "2 mg/kg" },
+    MR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "2 mg/kg" }
+},
+
+"dapsone": {
+    name: "Dapsone",
+    IR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "6 mg/kg" },
+    MR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "6 mg/kg" }
+},
+
+"diphenhydramine": {
+    name: "Diphenhydramine",
+    IR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "15 mg/kg" },
+    MR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "15 mg/kg" }
+},
+
+"disopyramide": {
+    name: "Disopyramide",
+    IR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "1 g" },
+    MR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "1 g" }
+},
+
+"factor_xa": {
+    name: "Factor Xa inhibitors",
+    IR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "40 mg (Apix) / 80 mg (Riva)" },
+    MR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "40 mg (Apix) / 80 mg (Riva)" }
+},
+
+"ibuprofen": {
+    name: "Ibuprofen",
+    IR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "250 mg/kg" },
+    MR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "250 mg/kg" }
+},
+
+"iron": {
+    name: "Iron",
+    IR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "Any dose" },
+    MR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "Any dose" }
+},
+
+"isoniazid": {
+    name: "Isoniazid",
+    IR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "40 mg/kg" },
+    MR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "40 mg/kg" }
+},
+
+"lamotrigine": {
+    name: "Lamotrigine",
+    IR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "30 mg/kg" },
+    MR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "30 mg/kg" }
+},
+
+"lead": {
+    name: "Lead",
+    IR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "Any dose" },
+    MR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "Any dose" }
+},
+
+"lithium": {
+    name: "Lithium",
+    IR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "Any dose" },
+    MR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "Any dose" }
+},
+
+"mercury": {
+    name: "Mercury",
+    IR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "Any dose" },
+    MR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "Any dose" }
+},
+
+"metformin": {
+    name: "Metformin",
+    IR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "Any dose" },
+    MR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "Any dose" }
+},
+
+"methotrexate": {
+    name: "Methotrexate",
+    IR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "10 mg/kg" },
+    MR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "10 mg/kg" }
+},
+
+"moclobemide": {
+    name: "Moclobemide",
+    IR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "50 mg/kg" },
+    MR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "50 mg/kg" }
+},
+
+"opioids": {
+    name: "Opioids",
+    IR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "5 TD" },
+    MR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "5 TD" }
+},
+
+"organophosphates": {
+    name: "Organophosphates",
+    IR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "Any dose" },
+    MR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "Any dose" }
+},
+
+"paraquat": {
+    name: "Paraquat",
+    IR: { rec: "weak", maxHours: 4, suggestHours: null, threshold: "5 mg/kg" },
+    MR: { rec: "weak", maxHours: 4, suggestHours: null, threshold: "5 mg/kg" }
+},
+
+"phenobarbital": {
+    name: "Phenobarbital",
+    IR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "20 mg/kg" },
+    MR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "20 mg/kg" }
+},
+
+"phenytoin": {
+    name: "Phenytoin",
+    IR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "40 mg/kg" },
+    MR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "40 mg/kg" }
+},
+
+"quinidine_quinine": {
+    name: "Quinidine / Quinine",
+    IR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "750 mg (Quinid) / 20 mg/kg (Quin)" },
+    MR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "750 mg (Quinid) / 20 mg/kg (Quin)" }
+},
+
+"salicylates": {
+    name: "Salicylates",
+    IR: { rec: "strong", maxHours: 2, suggestHours: 4, threshold: "200 mg/kg" },
+    MR: { rec: "weak", maxHours: 12, suggestHours: null, threshold: "Individual Risk" }
+},
+
+"ssri": {
+    name: "SSRI",
+    IR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "15 TD" },
+    MR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "15 TD" }
+},
+
+"sulfonylureas": {
+    name: "Sulfonylureas",
+    IR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "5 TD" },
+    MR: { rec: "weak", maxHours: 1, suggestHours: null, threshold: "5 TD" }
+},
+
+"thallium": {
+    name: "Thallium",
+    IR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "10 mg/kg" },
+    MR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "10 mg/kg" }
+},
+
+"theophylline": {
+    name: "Theophylline",
+    IR: { rec: "strong", maxHours: 2, suggestHours: null, threshold: "20 mg/kg" },
+    MR: { rec: "strong", maxHours: 2, suggestHours: null, threshold: "20 mg/kg" }
+},
+
+"tca": {
+    name: "Tricyclic Antidepressants",
+    IR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "10 mg/kg" },
+    MR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "10 mg/kg" }
+},
+
+"valproate": {
+    name: "Valproic Acid",
+    IR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "200 mg/kg" },
+    MR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "200 mg/kg" }
+},
+
+"venlafaxine": {
+    name: "Venlafaxine",
+    IR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "25 mg/kg" },
+    MR: { rec: "weak", maxHours: 2, suggestHours: null, threshold: "25 mg/kg" }
+},
+
+"warfarin": {
+    name: "Warfarin",
+    IR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "0.7 mg/kg" },
+    MR: { rec: "none", maxHours: 0, suggestHours: null, threshold: "0.7 mg/kg" }
+}
+
+};
+/* ============================
+   Helper Functions
+============================ */
+
+function validateDb() {
+    const allowed = ["strong", "weak", "none"];
+    Object.entries(db).forEach(([key, drug]) => {
+        ["IR", "MR"].forEach(form => {
+            const d = drug[form];
+            if (!d) return;
+            if (!allowed.includes(d.rec)) console.error("Invalid rec:", key, form);
+            if (typeof d.maxHours !== "number") console.error("Invalid maxHours:", key, form);
+            if (!d.threshold) console.error("Missing threshold:", key, form);
+        });
+    });
+}
+
+function parseNumericThreshold(txt) {
+    const m = txt.match(/[\d.]+/);
+    return m ? parseFloat(m[0]) : null;
+}
+
+function getThresholdUnit(txt) {
+    if (txt.includes("mg/kg")) return "mgkg";
+    if (txt.includes("µg/kg")) return "mgkg";
+    if (txt.includes(" g") || txt.endsWith("g")) return "g";
+    if (txt.includes("TD")) return "TD";
+    return null;
+}
+
+let currentForm = "IR";
+
+/* ============================
+   UI Setup
+============================ */
+
+function populateDrugs() {
+    const sel = document.getElementById("drug");
+    sel.innerHTML = '<option value="">-- Select Poison --</option>';
+    Object.keys(db).forEach(key => {
+        const opt = document.createElement("option");
+        opt.value = key;
+        opt.textContent = db[key].name;
+        sel.appendChild(opt);
+    });
+}
+
+function setForm(f) {
+    currentForm = f;
+    document.getElementById("btnIR").classList.toggle("bg-slate-900", f === "IR");
+    document.getElementById("btnIR").classList.toggle("text-white", f === "IR");
+    document.getElementById("btnMR").classList.toggle("bg-slate-900", f === "MR");
+    document.getElementById("btnMR").classList.toggle("text-white", f === "MR");
+    runRecommendation();
+}
+
+function updateHours() {
+    const h = parseFloat(document.getElementById("hours").value);
+    document.getElementById("hours_val").textContent = h.toFixed(1) + " hours";
+    runRecommendation();
+}
+
+function computeDoseMgPerKg(dose, unit, weight) {
+    if (!dose || isNaN(dose)) return null;
+    if (unit === "mgkg") return dose;
+    if (!weight || weight <= 0) return null;
+    if (unit === "mg") return dose / weight;
+    if (unit === "g") return (dose * 1000) / weight;
+    return null;
+}
+
+/* ============================
+   Main Logic
+============================ */
+
+function runRecommendation() {
+    const key = document.getElementById("drug").value;
+    if (!key) return;
+
+    const drug = db[key];
+    const hours = parseFloat(document.getElementById("hours").value);
+    const doseVal = parseFloat(document.getElementById("dose").value);
+    const doseUnit = document.getElementById("unit").value;
+    const weight = parseFloat(document.getElementById("weight").value);
+
+    const data = drug[currentForm];
+
+    /* SAFETY CHECK */
+    if (!document.getElementById("airway").checked || !document.getElementById("gi").checked) {
+        showResult(
+            drug.name,
+            "❌ SAFETY CHECK FAILED — Confirm protected airway and no GI perforation risk before considering AC.",
+            "none",
+            `
+            <div><strong>Threshold:</strong> ${data.threshold}</div>
+            <div><strong>Maximum time window:</strong> ${data.maxHours > 0 ? data.maxHours + " hours" : "No role for AC"}</div>
+            `
+        );
+        return;
+    }
+
+    /* TIME-BASED LOGIC */
+    let statusHTML = "";
+    let statusClass = "";
+    let timeReason = "";
+
+    if (data.rec === "none") {
+        statusHTML = "❌ NOT RECOMMENDED — Activated charcoal has no recommended role for this poison.";
+        statusClass = "none";
+        timeReason = "No time window applies.";
+    } else {
+        const maxWindow = data.suggestHours || data.maxHours;
+
+        if (hours <= data.maxHours) {
+            if (data.rec === "strong") {
+                statusHTML = "✅ STRONG RECOMMENDATION — SDAC recommended.";
+                statusClass = "strong";
+                timeReason = `Within strong window (≤ ${data.maxHours} hours).`;
+            } else {
+                statusHTML = "🟡 WEAK RECOMMENDATION — SDAC may be considered.";
+                statusClass = "weak";
+                timeReason = `Within weak window (≤ ${data.maxHours} hours).`;
+            }
+        } else if (data.suggestHours && hours <= data.suggestHours) {
+            statusHTML = `🟡 WEAK RECOMMENDATION — Extended suggest window (≤ ${data.suggestHours} hours).`;
+            statusClass = "weak";
+            timeReason = `Within extended suggest window (${data.maxHours}–${data.suggestHours} hours).`;
+        } else {
+            statusHTML = `⚠️ NOT RECOMMENDED — Time since ingestion (${hours.toFixed(1)} h) exceeds window (${maxWindow} h).`;
+            statusClass = "none";
+            timeReason = `Beyond maximum allowed time window (${maxWindow} hours).`;
+        }
+    }
+
+    /* DOSE-BASED OVERRIDE */
+    let doseReason = "";
+    const thText = data.threshold;
+
+    if (doseVal && !isNaN(doseVal) && thText !== "Any dose" && thText !== "Individual Risk") {
+        const thNum = parseNumericThreshold(thText);
+        const thUnit = getThresholdUnit(thText);
+
+        if (thUnit === "mgkg") {
+            const mgkg = computeDoseMgPerKg(doseVal, doseUnit, weight);
+            if (mgkg == null) {
+                doseReason = "Unable to compute mg/kg.";
+            } else if (mgkg < thNum) {
+                statusHTML = `⚠️ NOT RECOMMENDED — Dose (${mgkg.toFixed(1)} mg/kg) below threshold (${thText}).`;
+                statusClass = "none";
+                doseReason = "Below minimum dose for intervention.";
+            } else {
+                doseReason = `Dose (${mgkg.toFixed(1)} mg/kg) ≥ threshold (${thText}).`;
+            }
+        } else if (thUnit === "g" || thUnit === "TD") {
+            if (doseUnit !== thUnit) {
+                doseReason = "Dose and threshold units not comparable.";
+            } else if (doseVal < thNum) {
+                statusHTML = `⚠️ NOT RECOMMENDED — Dose (${doseVal} ${doseUnit}) below threshold (${thText}).`;
+                statusClass = "none";
+                doseReason = "Below minimum dose for intervention.";
+            } else {
+                doseReason = `Dose ≥ threshold (${thText}).`;
+            }
+        }
+    } else if (thText === "Any dose") {
+        doseReason = "Any dose may qualify.";
+    } else if (thText === "Individual Risk") {
+        doseReason = "Threshold depends on clinical judgment.";
+    } else {
+        doseReason = "Dose not provided.";
+    }
+
+    /* ADAC MESSAGE */
+    const adacMessage =
+        (!doseVal || isNaN(doseVal))
+            ? "ADAC may be considered only if prolonged absorption is suspected."
+            : "If prolonged absorption (MR, bezoar, gastroparesis) exists — consider ADAC.";
+
+    /* RENDER */
+    showResult(
+        drug.name + " (" + currentForm + ")",
+        statusHTML,
+        statusClass,
+        `
+        <div><strong>Formulation:</strong> ${currentForm}</div>
+        <div><strong>Time reasoning:</strong> ${timeReason}</div>
+        <div><strong>Threshold:</strong> ${thText}</div>
+        <div><strong>Dose reasoning:</strong> ${doseReason}</div>
+        <div><strong>ADAC:</strong> ${adacMessage}</div>
+        `
+    );
+}
+
+/* ============================
+   Render Helper
+============================ */
+
+function showResult(title, statusHTML, statusClass, detailsHTML) {
+    document.getElementById("result").classList.remove("hidden");
+    document.getElementById("drug_name").textContent = title;
+    document.getElementById("status").innerHTML = statusHTML;
+    document.getElementById("status").className =
+        "p-8 rounded-2xl text-center text-2xl font-black mb-6 " + statusClass;
+    document.getElementById("details").innerHTML = detailsHTML;
+}
+
+/* ============================
+   INIT
+============================ */
+
+populateDrugs();
+updateHours();
+validateDb();
+</script>
+
 </body>
 </html>
