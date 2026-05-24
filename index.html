@@ -42,8 +42,8 @@
 
         <div>
             <label class="block text-sm font-semibold text-slate-500 mb-2">3. Hours since ingestion</label>
-            <input type="range" id="hours" min="0" max="24" step="0.1" value="5" class="w-full accent-slate-900" oninput="updateHours()">
-            <div class="text-center font-bold text-2xl mt-2" id="hours_val">5.0 hours</div>
+            <input type="range" id="hours" min="0" max="24" step="0.1" value="3.5" class="w-full accent-slate-900" oninput="updateHours()">
+            <div class="text-center font-bold text-2xl mt-2" id="hours_val">3.5 hours</div>
         </div>
 
         <div>
@@ -73,7 +73,9 @@
 <script>
 // Full database from your Excel
 const db = {
-    "paracetamol": {name: "Acetaminophen / Paracetamol", ir: {strength:"strong", maxH:2, suggestH:4, thresh:"200 mg/kg"}, mr: {strength:"strong", maxH:5, suggestH:6, thresh:"200 mg/kg"}},
+    "paracetamol": {name: "Acetaminophen / Paracetamol", 
+        ir: {strength:"strong", maxH:2, suggestH:4, thresh:"200 mg/kg"}, 
+        mr: {strength:"strong", maxH:5, suggestH:6, thresh:"200 mg/kg"}},
     "carbamazepine": {name: "Carbamazepine", ir: {strength:"strong", maxH:2, thresh:"25 mg/kg"}, mr: {strength:"strong", maxH:3, thresh:"25 mg/kg"}},
     "phenobarbital": {name: "Phenobarbital", ir: {strength:"strong", maxH:1, thresh:"20 mg/kg"}},
     "salicylates": {name: "Salicylates (Aspirin)", ir: {strength:"strong", maxH:2, suggestH:4, thresh:"200 mg/kg"}, mr: {strength:"weak", maxH:3, thresh:"200 mg/kg"}},
@@ -157,7 +159,7 @@ function runRecommendation() {
     } else if (hours > (data.suggestH || data.maxH)) {
         statusHTML = `⚠️ Beyond recommended window`;
         statusClass = "bg-amber-600";
-    } else if (data.strength === "strong") {
+    } else if (data.strength === "strong" && hours <= data.maxH) {
         statusHTML = "✅ STRONG RECOMMENDATION — Single-dose AC is recommended";
         statusClass = "strong";
     } else {
