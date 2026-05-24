@@ -15,7 +15,7 @@
 <div class="max-w-4xl mx-auto p-6">
 
     <h1 class="text-4xl font-black mb-1">Activated Charcoal Tool 2026</h1>
-    <p class="text-slate-600 mb-8">Based on Excel Table - Gold Standard (Full List)</p>
+    <p class="text-slate-600 mb-8">Based on Excel Table - Gold Standard</p>
 
     <!-- Safety Checklist -->
     <div class="bg-amber-50 border border-amber-300 rounded-2xl p-6 mb-8">
@@ -42,8 +42,8 @@
 
         <div>
             <label class="block text-sm font-semibold text-slate-500 mb-2">3. Hours since ingestion</label>
-            <input type="range" id="hours" min="0" max="24" step="0.1" value="2" class="w-full accent-slate-900" oninput="updateHours()">
-            <div class="text-center font-bold text-2xl mt-2" id="hours_val">2.0 hours</div>
+            <input type="range" id="hours" min="0" max="24" step="0.1" value="5" class="w-full accent-slate-900" oninput="updateHours()">
+            <div class="text-center font-bold text-2xl mt-2" id="hours_val">5.0 hours</div>
         </div>
 
         <div>
@@ -53,7 +53,6 @@
                 <select id="unit" class="p-4 border-2 border-slate-200 rounded-2xl">
                     <option value="mgkg">mg/kg</option>
                     <option value="g">g</option>
-                    <option value="mg">mg</option>
                     <option value="TD">TD</option>
                 </select>
             </div>
@@ -72,7 +71,7 @@
 </div>
 
 <script>
-// Full database from your Excel file
+// Full database from your Excel
 const db = {
     "paracetamol": {name: "Acetaminophen / Paracetamol", ir: {strength:"strong", maxH:2, suggestH:4, thresh:"200 mg/kg"}, mr: {strength:"strong", maxH:5, suggestH:6, thresh:"200 mg/kg"}},
     "carbamazepine": {name: "Carbamazepine", ir: {strength:"strong", maxH:2, thresh:"25 mg/kg"}, mr: {strength:"strong", maxH:3, thresh:"25 mg/kg"}},
@@ -142,7 +141,6 @@ function runRecommendation() {
     const hours = parseFloat(document.getElementById("hours").value);
     const data = (currentForm === "MR" && drug.mr) ? drug.mr : drug.ir;
 
-    // Safety check
     if (!document.getElementById("airway").checked || !document.getElementById("gi").checked) {
         document.getElementById("status").innerHTML = "❌ SAFETY CHECK FAILED — Confirm protected airway and no GI perforation risk";
         document.getElementById("status").className = "p-8 rounded-2xl text-center text-xl font-black mb-6 bg-red-600 text-white";
@@ -156,8 +154,8 @@ function runRecommendation() {
     if (data.strength === "none") {
         statusHTML = "❌ NO ROLE — Activated Charcoal is NOT recommended";
         statusClass = "none";
-    } else if (hours > data.maxH) {
-        statusHTML = `⚠️ Beyond recommended window (max ${data.maxH} hours)`;
+    } else if (hours > (data.suggestH || data.maxH)) {
+        statusHTML = `⚠️ Beyond recommended window`;
         statusClass = "bg-amber-600";
     } else if (data.strength === "strong") {
         statusHTML = "✅ STRONG RECOMMENDATION — Single-dose AC is recommended";
@@ -174,7 +172,7 @@ function runRecommendation() {
 
     document.getElementById("details").innerHTML = `
         <div><strong>Threshold:</strong> ${data.thresh}</div>
-        <div><strong>Maximum time window:</strong> ${data.maxH} hours</div>
+        <div><strong>Time window:</strong> Strong up to ${data.maxH}h ${data.suggestH ? `, Weak up to ${data.suggestH}h` : ''}</div>
     `;
 }
 
